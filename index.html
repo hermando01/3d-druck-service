@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein 3D-Druck Service</title>
+    
+    <!-- Das Skript aus deinem Screenshot, damit das Popup funktioniert -->
+    <script async src="https://tally.so/widgets/embed.js"></script>
+    
+    <style>
+        /* Hier wird das Design (Farben und Schriftarten) festgelegt */
+        :root {
+            --bambu-green: #00A65A; /* Ein frisches Grün als Hauptfarbe */
+            --bambu-green-hover: #00894A;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Das Design der weißen Karte in der Mitte */
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 450px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        /* Die kleinen Schilder für deine Drucker */
+        .printers {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .badge {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Der Tally-Button im modernen Design */
+        button.tally-btn {
+            background-color: var(--bambu-green);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3);
+        }
+
+        button.tally-btn:hover {
+            background-color: var(--bambu-green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 166, 90, 0.4);
+        }
+
+        button.tally-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>3D-Druck Service</h1>
+        
+        <div class="printers">
+            <span class="badge">Bambu Lab A1 Mini</span>
+            <span class="badge">Bambu Lab P1S</span>
+        </div>
+        
+        <p>Lade hier einfach deine STL-Datei hoch, verlinke etwas aus Maker World oder beschreibe mir deine Idee. Ich berechne das Material und melde mich mit dem Preis bei dir!</p>
+        
+        <!-- Dein exakter Code aus dem Screenshot für das Popup -->
+        <button class="tally-btn" 
+                data-tally-open="44VqbB" 
+                data-tally-layout="modal" 
+                data-tally-width="400" 
+                data-tally-emoji-text="👋" 
+                data-tally-emoji-animation="wave">
+            Jetzt Datei hochladen
+        </button>
+    </div>
+
+</body>
+</html>
