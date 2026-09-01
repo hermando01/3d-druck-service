@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein 3D-Druck Service</title>
     
-    <!-- Das Skript für dein Tally-Popup -->
     <script async src="https://tally.so/widgets/embed.js"></script>
     
     <style>
@@ -19,9 +18,10 @@
             --text-muted: #4b5563;
             --border-color: #e5e7eb;
             --box-bg: #f3f4f6;
+            --spool-plastic: #374151; /* Farbe für das Plastik der Spule (Hellmodus) */
         }
 
-        /* Automatischer Dark Mode (aktiviert sich, wenn das Handy/PC des Nutzers auf Dunkel gestellt ist) */
+        /* Automatischer Dark Mode */
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-color: #111827;
@@ -30,6 +30,7 @@
                 --text-muted: #9ca3af;
                 --border-color: #374151;
                 --box-bg: #374151;
+                --spool-plastic: #9ca3af; /* Farbe für das Plastik der Spule (Dunkelmodus) */
             }
         }
 
@@ -41,10 +42,30 @@
             padding-bottom: 90px; 
         }
 
+        /* PC / DESKTOP LAYOUT (Grid) */
         .container {
-            max-width: 600px;
+            max-width: 1000px; /* Auf dem PC breiter */
             margin: 0 auto;
             padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .platforms-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Wenn der Bildschirm breiter als 800px ist (PC/Tablet), aktiviere 2 Spalten */
+        @media (min-width: 800px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: 1 / -1; /* Nimmt die volle Breite ein */
+            }
         }
 
         .section-card {
@@ -52,16 +73,17 @@
             padding: 25px;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
             border: 1px solid var(--border-color);
+            height: fit-content;
         }
+
+        /* Ohne margin-bottom, da Grid die Abstände regelt */
+        .section-card-no-margin { margin-bottom: 0; } 
 
         h1 { font-size: 28px; margin-top: 0; margin-bottom: 10px; }
         h2 { font-size: 20px; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: var(--text-main); }
         p { color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
 
-        /* Bild-Platzhalter (Grauer Kasten, solange kein Bild da ist) */
         .image-placeholder {
             width: 100%;
             min-height: 200px;
@@ -80,7 +102,50 @@
         .printers { display: flex; gap: 10px; margin-bottom: 15px; }
         .badge { background-color: var(--box-bg); color: var(--text-main); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid var(--border-color); }
 
-        /* Farben Übersicht */
+        /* --- DROPDOWN MENÜS FÜR MATERIAL --- */
+        details.material-dropdown {
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        details.material-dropdown summary {
+            padding: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            list-style: none; /* Versteckt den Standard-Pfeil */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+        }
+        
+        details.material-dropdown summary::-webkit-details-marker {
+            display: none; /* Versteckt den Pfeil für Safari/Apple */
+        }
+        
+        details.material-dropdown summary::after {
+            content: '▼';
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        
+        details[open].material-dropdown summary::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+        }
+
+        /* --- FILAMENT SPULEN-OPTIK --- */
         .color-grid {
             display: flex;
             flex-wrap: wrap;
@@ -89,67 +154,44 @@
         .color-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             background-color: var(--box-bg);
             color: var(--text-main);
-            padding: 8px 14px;
+            padding: 8px 16px 8px 12px;
             border-radius: 30px;
             font-size: 14px;
             font-weight: 500;
             border: 1px solid var(--border-color);
         }
-        .color-dot {
-            width: 18px;
-            height: 18px;
+        
+        /* Das ist das Design für die Spule von oben (Draufsicht) */
+        .spool-icon {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            border: 1px solid #9ca3af;
+            border: 4px solid var(--spool-plastic); /* Der äußere Spulenrand */
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.4); /* Leichter 3D-Effekt im Filament */
+        }
+        
+        /* Das ist das kleine Loch in der Mitte der Spule */
+        .spool-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--spool-plastic);
+            border-radius: 50%;
         }
 
-        .step-list {
-            margin: 0;
-            padding-left: 20px;
-            color: var(--text-muted);
-            line-height: 1.6;
-            font-size: 15px;
-            margin-bottom: 15px;
-        }
-        .platform-btn {
-            display: inline-block;
-            text-decoration: none;
-            background-color: var(--box-bg);
-            color: var(--text-main);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
+        .step-list { margin: 0; padding-left: 20px; color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
+        .platform-btn { display: inline-block; text-decoration: none; background-color: var(--box-bg); color: var(--text-main); padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; text-align: center; border: 1px solid var(--border-color); }
 
-        .sticky-footer {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        button.tally-btn {
-            background-color: var(--bambu-green);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 14px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 400px; 
-            box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3);
-        }
+        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: center; z-index: 1000; }
+        button.tally-btn { background-color: var(--bambu-green); color: white; border: none; padding: 16px 32px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3); }
         button.tally-btn:hover { background-color: var(--bambu-green-hover); }
     </style>
 </head>
@@ -157,14 +199,9 @@
 
     <div class="container">
         
-        <!-- 1. KOPFBEREICH -->
-        <div class="section-card">
-            
-            <!-- ====== BILD 1 EINBAUEN ====== -->
-            <!-- Ersetze "DEIN_BILD_HIER.jpg" mit deinem Bildnamen (z.B. "drucker.jpg") -->
+        <!-- 1. KOPFBEREICH (Volle Breite) -->
+        <div class="section-card full-width">
             <img src="DEIN_BILD_HIER.jpg" alt="Foto meiner Drucker" class="image-placeholder">
-            <!-- ============================== -->
-
             <h1>Mein 3D-Druck Service</h1>
             <div class="printers">
                 <span class="badge">Bambu Lab P1S</span>
@@ -174,74 +211,80 @@
         </div>
 
 
-        <!-- 2. MATERIAL & FARBEN -->
+        <!-- 2. MATERIAL & FARBEN (Auf dem PC in der linken Spalte) -->
         <div class="section-card">
-            <h2>Verfügbare Materialien & Farben</h2>
+            <h2>Verfügbare Filament-Spulen</h2>
+            <p>Klicke auf das gewünschte Material, um meine aktuellen Filament-Farben zu sehen:</p>
             
-            <!-- KATEGORIE 1: PLA -->
-            <h3>PLA (Standard, ideal für Deko & Figuren)</h3>
-            <div class="color-grid">
-                <div class="color-item"><span class="color-dot" style="background-color: black;"></span> Schwarz</div>
-                <div class="color-item"><span class="color-dot" style="background-color: white;"></span> Weiß</div>
-                <div class="color-item"><span class="color-dot" style="background-color: #C0C0C0;"></span> Silber / Grau</div>
-            </div>
+            <!-- DROPDOWN 1: PLA -->
+            <details class="material-dropdown">
+                <summary>PLA (Standard / Deko)</summary>
+                <div class="dropdown-content">
+                    <div class="color-grid">
+                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                        <div class="color-item"><span class="spool-icon" style="background-color: white;"></span> Weiß</div>
+                        <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span> Silber</div>
+                    </div>
+                </div>
+            </details>
 
-            <!-- KATEGORIE 2: PETG -->
-            <h3>PETG (Stabil & Hitzebeständig, ideal für draußen)</h3>
-            <div class="color-grid">
-                <div class="color-item"><span class="color-dot" style="background-color: black;"></span> Schwarz</div>
-                <div class="color-item"><span class="color-dot" style="background-color: red;"></span> Rot</div>
-                <div class="color-item"><span class="color-dot" style="background-color: #0055ff;"></span> Blau</div>
-            </div>
+            <!-- DROPDOWN 2: PETG -->
+            <details class="material-dropdown">
+                <summary>PETG (Stabil & Outdoor)</summary>
+                <div class="dropdown-content">
+                    <div class="color-grid">
+                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                        <div class="color-item"><span class="spool-icon" style="background-color: red;"></span> Rot</div>
+                        <div class="color-item"><span class="spool-icon" style="background-color: #0055ff;"></span> Blau</div>
+                    </div>
+                </div>
+            </details>
 
-            <!-- KATEGORIE 3: TPU -->
-            <h3>TPU (Flexibel / Gummiartig)</h3>
-            <div class="color-grid">
-                <div class="color-item"><span class="color-dot" style="background-color: black;"></span> Schwarz</div>
-            </div>
-            
+            <!-- DROPDOWN 3: TPU -->
+            <details class="material-dropdown">
+                <summary>TPU (Flexibel / Gummi)</summary>
+                <div class="dropdown-content">
+                    <div class="color-grid">
+                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                    </div>
+                </div>
+            </details>
         </div>
 
 
-        <!-- 3. MAKERWORLD -->
-        <div class="section-card">
-            <h2>Modelle finden auf MakerWorld</h2>
+        <!-- RECHTE SPALTE (Makerworld & Thangs untereinander) -->
+        <div class="platforms-wrapper">
             
-            <!-- ====== BILD 2 EINBAUEN ====== -->
-            <!-- Ersetze "DEIN_BILD_HIER.jpg" mit deinem Bildnamen (z.B. "makerworld.jpg") -->
-            <img src="DEIN_BILD_HIER.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
-            <!-- ============================== -->
+            <!-- MAKERWORLD -->
+            <div class="section-card">
+                <h2>Modelle auf MakerWorld</h2>
+                <img src="DEIN_BILD_HIER.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
+                <p>Die beste Plattform für Bambu Lab Drucker.</p>
+                <ol class="step-list">
+                    <li>Suche dir ein Modell aus und kopiere den Link aus dem Browser.</li>
+                    <li>Klicke unten auf "Jetzt bestellen" und füge den Link ein!</li>
+                </ol>
+                <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
+            </div>
 
-            <p>MakerWorld ist die beste Plattform für Bambu Lab Drucker. Hier findest du tausende perfekte Modelle.</p>
-            <ol class="step-list">
-                <li>Suche dir ein Modell aus und kopiere den Link aus dem Browser.</li>
-                <li>Klicke unten auf "Jetzt bestellen" und füge den Link in mein Formular ein!</li>
-            </ol>
-            <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
-        </div>
+            <!-- THANGS -->
+            <div class="section-card">
+                <h2>Suchmaschine: Thangs.com</h2>
+                <img src="DEIN_BILD_HIER.jpg" alt="Screenshot Thangs" class="image-placeholder">
+                <p>Durchsucht fast alle 3D-Druck-Seiten gleichzeitig. Ideal für spezielle Wünsche!</p>
+                <ol class="step-list">
+                    <li>Suche nach deinem Wunschbegriff (auf Englisch).</li>
+                    <li>Kopiere die Modell-Adresse aus dem Browser.</li>
+                    <li>Füge den Link über den Bestell-Button bei mir ein.</li>
+                </ol>
+                <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
+            </div>
 
-
-        <!-- 4. THANGS -->
-        <div class="section-card">
-            <h2>Suchmaschine: Thangs.com</h2>
-            
-            <!-- ====== BILD 3 EINBAUEN ====== -->
-            <!-- Ersetze "DEIN_BILD_HIER.jpg" mit deinem Bildnamen (z.B. "thangs.jpg") -->
-            <img src="DEIN_BILD_HIER.jpg" alt="Screenshot Thangs" class="image-placeholder">
-            <!-- ============================== -->
-
-            <p>Thangs durchsucht fast alle 3D-Druck-Seiten im Internet gleichzeitig. Ideal, wenn du etwas Spezielles suchst!</p>
-            <ol class="step-list">
-                <li>Suche nach deinem Wunschbegriff (am besten auf Englisch).</li>
-                <li>Kopiere die Internetadresse des Modells.</li>
-                <li>Füge den Link über den Button bei mir ein.</li>
-            </ol>
-            <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
-        </div>
+        </div> <!-- Ende der rechten Spalte -->
 
     </div>
 
-    <!-- 5. FIXIERTER BUTTON -->
+    <!-- FIXIERTER BUTTON -->
     <div class="sticky-footer">
         <button class="tally-btn" 
                 data-tally-open="44VqbB" 
