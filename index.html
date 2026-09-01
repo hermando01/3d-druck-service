@@ -52,18 +52,13 @@
             gap: 25px;
         }
 
-        .platforms-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
+        /* Auf dem PC (ab 800px Breite) nutzen wir 2 Spalten */
         @media (min-width: 800px) {
             .container {
                 grid-template-columns: 1fr 1fr;
             }
             .full-width {
-                grid-column: 1 / -1;
+                grid-column: 1 / -1; /* Zwingt die Box über beide Spalten */
             }
         }
 
@@ -98,7 +93,7 @@
         .printers { display: flex; gap: 10px; margin-bottom: 15px; }
         .badge { background-color: var(--box-bg); color: var(--text-main); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid var(--border-color); }
 
-        /* --- NEUES DROPDOWN DESIGN --- */
+        /* --- DROPDOWN DESIGN --- */
         .material-label {
             display: block;
             margin-bottom: 8px;
@@ -122,14 +117,9 @@
             box-sizing: border-box;
         }
         
-        .custom-select:focus {
-            border-color: var(--bambu-green);
-        }
+        .custom-select:focus { border-color: var(--bambu-green); }
 
-        /* Versteckt die Farb-Sektionen standardmäßig */
-        .color-section {
-            display: none;
-        }
+        .color-section { display: none; }
 
         /* --- FILAMENT SPULEN-OPTIK --- */
         .color-grid {
@@ -151,8 +141,7 @@
         }
         
         .spool-icon {
-            width: 24px;
-            height: 24px;
+            width: 24px; height: 24px;
             border-radius: 50%;
             border: 4px solid var(--spool-plastic);
             position: relative;
@@ -165,8 +154,7 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             background-color: var(--spool-plastic);
             border-radius: 50%;
         }
@@ -179,28 +167,22 @@
         button.tally-btn:hover { background-color: var(--bambu-green-hover); }
     </style>
     
-    <!-- Das Skript für den Wechsel der Farben -->
     <script>
         function updateColors() {
-            // Erstmal alle Farb-Sektionen verstecken
             document.getElementById('colors-pla').style.display = 'none';
             document.getElementById('colors-petg').style.display = 'none';
             document.getElementById('colors-tpu').style.display = 'none';
             
-            // Dann auslesen, was im Dropdown ausgewählt wurde
             var selectedMaterial = document.getElementById('material-selector').value;
-            
-            // Und nur die Sektion des ausgewählten Materials einblenden
             document.getElementById('colors-' + selectedMaterial).style.display = 'block';
         }
     </script>
 </head>
-<!-- onload="updateColors()" sorgt dafür, dass PLA beim Laden direkt angezeigt wird -->
 <body onload="updateColors()">
 
     <div class="container">
         
-        <!-- 1. KOPFBEREICH -->
+        <!-- 1. KOPFBEREICH (Volle Breite) -->
         <div class="section-card full-width">
             <img src="DEIN_BILD_HIER.jpg" alt="Foto meiner Drucker" class="image-placeholder">
             <h1>Mein 3D-Druck Service</h1>
@@ -212,11 +194,10 @@
         </div>
 
 
-        <!-- 2. MATERIAL & FARBEN -->
-        <div class="section-card">
+        <!-- 2. MATERIAL & FARBEN (Jetzt ebenfalls Volle Breite) -->
+        <div class="section-card full-width">
             <h2>Verfügbare Filament-Spulen</h2>
             
-            <!-- Das neue Dropdown-Menü -->
             <label for="material-selector" class="material-label">Wähle ein Material:</label>
             <select id="material-selector" class="custom-select" onchange="updateColors()">
                 <option value="pla">PLA (Standard / Deko)</option>
@@ -224,7 +205,6 @@
                 <option value="tpu">TPU (Flexibel / Gummi)</option>
             </select>
 
-            <!-- Farb-Sektion PLA (Die IDs hier müssen mit den "values" aus dem Menü übereinstimmen) -->
             <div id="colors-pla" class="color-section">
                 <div class="color-grid">
                     <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
@@ -233,7 +213,6 @@
                 </div>
             </div>
 
-            <!-- Farb-Sektion PETG -->
             <div id="colors-petg" class="color-section">
                 <div class="color-grid">
                     <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
@@ -242,7 +221,6 @@
                 </div>
             </div>
 
-            <!-- Farb-Sektion TPU -->
             <div id="colors-tpu" class="color-section">
                 <div class="color-grid">
                     <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
@@ -251,35 +229,32 @@
         </div>
 
 
-        <!-- RECHTE SPALTE -->
-        <div class="platforms-wrapper">
-            
-            <!-- MAKERWORLD -->
-            <div class="section-card">
-                <h2>Modelle auf MakerWorld</h2>
-                <img src="DEIN_BILD_HIER.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
-                <p>Die beste Plattform für Bambu Lab Drucker.</p>
-                <ol class="step-list">
-                    <li>Suche dir ein Modell aus und kopiere den Link aus dem Browser.</li>
-                    <li>Klicke unten auf "Jetzt bestellen" und füge den Link ein!</li>
-                </ol>
-                <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
-            </div>
+        <!-- 3. MAKERWORLD (Linke Spalte unten) -->
+        <div class="section-card">
+            <h2>Modelle auf MakerWorld</h2>
+            <img src="DEIN_BILD_HIER.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
+            <p>Die beste Plattform für Bambu Lab Drucker.</p>
+            <ol class="step-list">
+                <li>Suche dir ein Modell aus und kopiere den Link aus dem Browser.</li>
+                <li>Klicke unten auf "Jetzt bestellen" und füge den Link ein!</li>
+            </ol>
+            <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
+        </div>
 
-            <!-- THANGS -->
-            <div class="section-card">
-                <h2>Suchmaschine: Thangs.com</h2>
-                <img src="DEIN_BILD_HIER.jpg" alt="Screenshot Thangs" class="image-placeholder">
-                <p>Durchsucht fast alle 3D-Druck-Seiten gleichzeitig. Ideal für spezielle Wünsche!</p>
-                <ol class="step-list">
-                    <li>Suche nach deinem Wunschbegriff (auf Englisch).</li>
-                    <li>Kopiere die Modell-Adresse aus dem Browser.</li>
-                    <li>Füge den Link über den Bestell-Button bei mir ein.</li>
-                </ol>
-                <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
-            </div>
 
-        </div> 
+        <!-- 4. THANGS (Rechte Spalte unten) -->
+        <div class="section-card">
+            <h2>Suchmaschine: Thangs.com</h2>
+            <img src="DEIN_BILD_HIER.jpg" alt="Screenshot Thangs" class="image-placeholder">
+            <p>Durchsucht fast alle 3D-Druck-Seiten gleichzeitig. Ideal für spezielle Wünsche!</p>
+            <ol class="step-list">
+                <li>Suche nach deinem Wunschbegriff (auf Englisch).</li>
+                <li>Kopiere die Modell-Adresse aus dem Browser.</li>
+                <li>Füge den Link über den Bestell-Button bei mir ein.</li>
+            </ol>
+            <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
+        </div>
+
     </div>
 
     <!-- FIXIERTER BUTTON -->
