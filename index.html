@@ -5,18 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein 3D-Druck Service</title>
     
-    <!-- Das Skript aus deinem Screenshot, damit das Popup funktioniert -->
+    <!-- Das Skript für dein Tally-Popup -->
     <script async src="https://tally.so/widgets/embed.js"></script>
     
     <style>
-        /* Hier wird das Design (Farben und Schriftarten) festgelegt */
         :root {
-            --bambu-green: #00A65A; /* Ein frisches Grün als Hauptfarbe */
+            --bambu-green: #00A65A; 
             --bambu-green-hover: #00894A;
-            --bg-color: #f3f4f6;
+            --bg-color: #f9fafb;
             --card-bg: #ffffff;
             --text-main: #1f2937;
-            --text-muted: #6b7280;
+            --text-muted: #4b5563;
         }
 
         body {
@@ -24,56 +23,104 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            /* Extra Platz unten, damit der fixierte Button nichts verdeckt */
+            padding-bottom: 90px; 
         }
 
-        /* Das Design der weißen Karte in der Mitte */
-        .card {
+        /* Haupt-Behälter, der die Breite der Seite auf Computern begrenzt */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Die weißen Boxen/Karten für die einzelnen Abschnitte */
+        .section-card {
             background: var(--card-bg);
-            padding: 40px;
+            padding: 25px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            max-width: 450px;
-            text-align: center;
-            margin: 20px;
-        }
-
-        h1 {
-            margin-top: 0;
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text-main);
-        }
-
-        p {
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-
-        /* Die kleinen Schilder für deine Drucker */
-        .printers {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 25px;
         }
 
-        .badge {
-            background-color: #e5e7eb;
-            color: #4b5563;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+        h1 { font-size: 28px; margin-top: 0; margin-bottom: 10px; }
+        h2 { font-size: 20px; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; }
+        p { color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
+
+        /* Große Platzhalter-Bilder */
+        .hero-image, .platform-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 1px solid #e5e7eb;
         }
 
-        /* Der Tally-Button im modernen Design */
+        /* Drucker-Schilder */
+        .printers { display: flex; gap: 10px; margin-bottom: 15px; }
+        .badge { background-color: #f3f4f6; color: #4b5563; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+
+        /* --- FARBEN ÜBERSICHT --- */
+        .color-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #f9fafb;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+        }
+        .color-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid #d1d5db;
+        }
+
+        /* --- PLATTFORM SCHRITTE --- */
+        .step-list {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+        .platform-btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* --- DAUERHAFT SICHTBARER BUTTON (STICKY) --- */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 15px 20px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+
         button.tally-btn {
             background-color: var(--bambu-green);
             color: white;
@@ -81,45 +128,95 @@
             padding: 16px 32px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             width: 100%;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
+            max-width: 400px; /* Begrenzt die Breite auf großen Bildschirmen */
             box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3);
+            transition: transform 0.2s;
         }
-
-        button.tally-btn:hover {
-            background-color: var(--bambu-green-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 166, 90, 0.4);
-        }
-
-        button.tally-btn:active {
-            transform: translateY(0);
-        }
+        button.tally-btn:hover { background-color: var(--bambu-green-hover); transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>3D-Druck Service</h1>
+    <div class="container">
         
-        <div class="printers">
-            <span class="badge">Bambu Lab A1 Mini</span>
-            <span class="badge">Bambu Lab P1S</span>
+        <!-- 1. KOPFBEREICH MIT DRUCKERN -->
+        <div class="section-card">
+            <!-- Platzhalter für dein Foto vom P1S und A1 Mini -->
+            <img src="https://images.unsplash.com/photo-1631541909061-71e34ddce158?q=80&w=600&auto=format&fit=crop" alt="Meine Drucker" class="hero-image">
+            
+            <h1>Mein 3D-Druck Service</h1>
+            <div class="printers">
+                <span class="badge">Bambu Lab P1S</span>
+                <span class="badge">Bambu Lab A1 Mini</span>
+            </div>
+            <p>Willkommen! Such dir ein cooles Modell im Internet aus oder schick mir deine eigene Datei, und ich drucke es für dich in höchster Qualität.</p>
         </div>
-        
-        <p>Lade hier einfach deine STL-Datei hoch, verlinke etwas aus Maker World oder beschreibe mir deine Idee. Ich berechne das Material und melde mich mit dem Preis bei dir!</p>
-        
-        <!-- Dein exakter Code aus dem Screenshot für das Popup -->
+
+
+        <!-- 2. FARBEN ÜBERSICHT -->
+        <div class="section-card">
+            <h2>Meine Filament-Farben (PLA)</h2>
+            <p>Diese Farben habe ich aktuell auf Lager. (Sonderfarben auf Anfrage!)</p>
+            
+            <div class="color-grid">
+                <!-- SO FÜGST DU FARBEN HINZU: 
+                     Kopiere einfach eine der folgenden Zeilen.
+                     Ändere den Namen und passe die Farbe bei "background-color" an.
+                     Du kannst einfache englische Wörter (wie red, blue, green, black) oder Hex-Codes (#000000) nutzen. -->
+                
+                <div class="color-item"><span class="color-dot" style="background-color: black;"></span> Schwarz</div>
+                <div class="color-item"><span class="color-dot" style="background-color: white;"></span> Weiß</div>
+                <div class="color-item"><span class="color-dot" style="background-color: #C0C0C0;"></span> Silber / Grau</div>
+                <div class="color-item"><span class="color-dot" style="background-color: red;"></span> Rot</div>
+                <div class="color-item"><span class="color-dot" style="background-color: #0055ff;"></span> Blau</div>
+                <div class="color-item"><span class="color-dot" style="background-color: limegreen;"></span> Giftgrün</div>
+            </div>
+        </div>
+
+
+        <!-- 3. MAKERWORLD ANLEITUNG -->
+        <div class="section-card">
+            <h2>Modelle finden auf MakerWorld</h2>
+            <!-- Platzhalter für einen Screenshot von MakerWorld -->
+            <img src="https://images.unsplash.com/photo-1620062402120-14e4b77f10b8?q=80&w=600&auto=format&fit=crop" alt="MakerWorld Screenshot" class="platform-image">
+            <p>MakerWorld ist die beste Plattform für Bambu Lab Drucker. Hier findest du tausende perfekte Modelle.</p>
+            <ol class="step-list">
+                <li>Klicke auf den Button unten, um zu MakerWorld zu gelangen.</li>
+                <li>Suche dir ein Modell aus und kopiere den Link oben aus deinem Browser.</li>
+                <li>Klicke hier auf "Jetzt bestellen" und füge den Link in mein Formular ein!</li>
+            </ol>
+            <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
+        </div>
+
+
+        <!-- 4. THANGS ANLEITUNG -->
+        <div class="section-card">
+            <h2>Suchmaschine: Thangs.com</h2>
+            <!-- Platzhalter für einen Screenshot von Thangs -->
+            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600&auto=format&fit=crop" alt="Thangs Screenshot" class="platform-image">
+            <p>Thangs durchsucht fast alle 3D-Druck-Seiten im Internet gleichzeitig. Ideal, wenn du etwas Spezielles suchst!</p>
+            <ol class="step-list">
+                <li>Suche nach deinem Wunschbegriff (am besten auf Englisch).</li>
+                <li>Öffne das Modell und kopiere die Internetadresse.</li>
+                <li>Füge den Link über den "Jetzt bestellen"-Button bei mir ein.</li>
+            </ol>
+            <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
+        </div>
+
+    </div>
+
+    <!-- 5. DER FIXIERTE BUTTON GANZ UNTEN -->
+    <div class="sticky-footer">
         <button class="tally-btn" 
                 data-tally-open="44VqbB" 
                 data-tally-layout="modal" 
                 data-tally-width="400" 
                 data-tally-emoji-text="👋" 
                 data-tally-emoji-animation="wave">
-            Jetzt Datei hochladen
+            Jetzt bestellen / Datei hochladen
         </button>
     </div>
 
