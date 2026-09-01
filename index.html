@@ -18,7 +18,7 @@
             --text-muted: #4b5563;
             --border-color: #e5e7eb;
             --box-bg: #f3f4f6;
-            --spool-plastic: #374151; /* Farbe für das Plastik der Spule (Hellmodus) */
+            --spool-plastic: #374151;
         }
 
         /* Automatischer Dark Mode */
@@ -30,7 +30,7 @@
                 --text-muted: #9ca3af;
                 --border-color: #374151;
                 --box-bg: #374151;
-                --spool-plastic: #9ca3af; /* Farbe für das Plastik der Spule (Dunkelmodus) */
+                --spool-plastic: #9ca3af;
             }
         }
 
@@ -44,7 +44,7 @@
 
         /* PC / DESKTOP LAYOUT (Grid) */
         .container {
-            max-width: 1000px; /* Auf dem PC breiter */
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
             display: grid;
@@ -58,13 +58,12 @@
             gap: 25px;
         }
 
-        /* Wenn der Bildschirm breiter als 800px ist (PC/Tablet), aktiviere 2 Spalten */
         @media (min-width: 800px) {
             .container {
                 grid-template-columns: 1fr 1fr;
             }
             .full-width {
-                grid-column: 1 / -1; /* Nimmt die volle Breite ein */
+                grid-column: 1 / -1;
             }
         }
 
@@ -76,9 +75,6 @@
             border: 1px solid var(--border-color);
             height: fit-content;
         }
-
-        /* Ohne margin-bottom, da Grid die Abstände regelt */
-        .section-card-no-margin { margin-bottom: 0; } 
 
         h1 { font-size: 28px; margin-top: 0; margin-bottom: 10px; }
         h2 { font-size: 20px; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
@@ -102,47 +98,37 @@
         .printers { display: flex; gap: 10px; margin-bottom: 15px; }
         .badge { background-color: var(--box-bg); color: var(--text-main); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid var(--border-color); }
 
-        /* --- DROPDOWN MENÜS FÜR MATERIAL --- */
-        details.material-dropdown {
-            background-color: var(--box-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        
-        details.material-dropdown summary {
-            padding: 15px;
+        /* --- NEUES DROPDOWN DESIGN --- */
+        .material-label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            outline: none;
-            list-style: none; /* Versteckt den Standard-Pfeil */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-main);
-        }
-        
-        details.material-dropdown summary::-webkit-details-marker {
-            display: none; /* Versteckt den Pfeil für Safari/Apple */
-        }
-        
-        details.material-dropdown summary::after {
-            content: '▼';
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-muted);
-            transition: transform 0.2s;
-        }
-        
-        details[open].material-dropdown summary::after {
-            transform: rotate(180deg);
         }
 
-        .dropdown-content {
-            padding: 15px;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--card-bg);
+        .custom-select {
+            width: 100%;
+            padding: 14px 15px;
+            background-color: var(--box-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            margin-bottom: 20px;
+            cursor: pointer;
+            outline: none;
+            box-sizing: border-box;
+        }
+        
+        .custom-select:focus {
+            border-color: var(--bambu-green);
+        }
+
+        /* Versteckt die Farb-Sektionen standardmäßig */
+        .color-section {
+            display: none;
         }
 
         /* --- FILAMENT SPULEN-OPTIK --- */
@@ -164,18 +150,16 @@
             border: 1px solid var(--border-color);
         }
         
-        /* Das ist das Design für die Spule von oben (Draufsicht) */
         .spool-icon {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            border: 4px solid var(--spool-plastic); /* Der äußere Spulenrand */
+            border: 4px solid var(--spool-plastic);
             position: relative;
             box-sizing: border-box;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.4); /* Leichter 3D-Effekt im Filament */
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
         }
         
-        /* Das ist das kleine Loch in der Mitte der Spule */
         .spool-icon::after {
             content: '';
             position: absolute;
@@ -194,12 +178,29 @@
         button.tally-btn { background-color: var(--bambu-green); color: white; border: none; padding: 16px 32px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3); }
         button.tally-btn:hover { background-color: var(--bambu-green-hover); }
     </style>
+    
+    <!-- Das Skript für den Wechsel der Farben -->
+    <script>
+        function updateColors() {
+            // Erstmal alle Farb-Sektionen verstecken
+            document.getElementById('colors-pla').style.display = 'none';
+            document.getElementById('colors-petg').style.display = 'none';
+            document.getElementById('colors-tpu').style.display = 'none';
+            
+            // Dann auslesen, was im Dropdown ausgewählt wurde
+            var selectedMaterial = document.getElementById('material-selector').value;
+            
+            // Und nur die Sektion des ausgewählten Materials einblenden
+            document.getElementById('colors-' + selectedMaterial).style.display = 'block';
+        }
+    </script>
 </head>
-<body>
+<!-- onload="updateColors()" sorgt dafür, dass PLA beim Laden direkt angezeigt wird -->
+<body onload="updateColors()">
 
     <div class="container">
         
-        <!-- 1. KOPFBEREICH (Volle Breite) -->
+        <!-- 1. KOPFBEREICH -->
         <div class="section-card full-width">
             <img src="DEIN_BILD_HIER.jpg" alt="Foto meiner Drucker" class="image-placeholder">
             <h1>Mein 3D-Druck Service</h1>
@@ -211,48 +212,46 @@
         </div>
 
 
-        <!-- 2. MATERIAL & FARBEN (Auf dem PC in der linken Spalte) -->
+        <!-- 2. MATERIAL & FARBEN -->
         <div class="section-card">
             <h2>Verfügbare Filament-Spulen</h2>
-            <p>Klicke auf das gewünschte Material, um meine aktuellen Filament-Farben zu sehen:</p>
             
-            <!-- DROPDOWN 1: PLA -->
-            <details class="material-dropdown">
-                <summary>PLA (Standard / Deko)</summary>
-                <div class="dropdown-content">
-                    <div class="color-grid">
-                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                        <div class="color-item"><span class="spool-icon" style="background-color: white;"></span> Weiß</div>
-                        <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span> Silber</div>
-                    </div>
-                </div>
-            </details>
+            <!-- Das neue Dropdown-Menü -->
+            <label for="material-selector" class="material-label">Wähle ein Material:</label>
+            <select id="material-selector" class="custom-select" onchange="updateColors()">
+                <option value="pla">PLA (Standard / Deko)</option>
+                <option value="petg">PETG (Stabil & Outdoor)</option>
+                <option value="tpu">TPU (Flexibel / Gummi)</option>
+            </select>
 
-            <!-- DROPDOWN 2: PETG -->
-            <details class="material-dropdown">
-                <summary>PETG (Stabil & Outdoor)</summary>
-                <div class="dropdown-content">
-                    <div class="color-grid">
-                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                        <div class="color-item"><span class="spool-icon" style="background-color: red;"></span> Rot</div>
-                        <div class="color-item"><span class="spool-icon" style="background-color: #0055ff;"></span> Blau</div>
-                    </div>
+            <!-- Farb-Sektion PLA (Die IDs hier müssen mit den "values" aus dem Menü übereinstimmen) -->
+            <div id="colors-pla" class="color-section">
+                <div class="color-grid">
+                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                    <div class="color-item"><span class="spool-icon" style="background-color: white;"></span> Weiß</div>
+                    <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span> Silber</div>
                 </div>
-            </details>
+            </div>
 
-            <!-- DROPDOWN 3: TPU -->
-            <details class="material-dropdown">
-                <summary>TPU (Flexibel / Gummi)</summary>
-                <div class="dropdown-content">
-                    <div class="color-grid">
-                        <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                    </div>
+            <!-- Farb-Sektion PETG -->
+            <div id="colors-petg" class="color-section">
+                <div class="color-grid">
+                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                    <div class="color-item"><span class="spool-icon" style="background-color: red;"></span> Rot</div>
+                    <div class="color-item"><span class="spool-icon" style="background-color: #0055ff;"></span> Blau</div>
                 </div>
-            </details>
+            </div>
+
+            <!-- Farb-Sektion TPU -->
+            <div id="colors-tpu" class="color-section">
+                <div class="color-grid">
+                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
+                </div>
+            </div>
         </div>
 
 
-        <!-- RECHTE SPALTE (Makerworld & Thangs untereinander) -->
+        <!-- RECHTE SPALTE -->
         <div class="platforms-wrapper">
             
             <!-- MAKERWORLD -->
@@ -280,8 +279,7 @@
                 <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
             </div>
 
-        </div> <!-- Ende der rechten Spalte -->
-
+        </div> 
     </div>
 
     <!-- FIXIERTER BUTTON -->
