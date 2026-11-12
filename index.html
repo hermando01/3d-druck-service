@@ -5,141 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein 3D-Druck Service</title>
     
+    <!-- Tally Popup Script -->
     <script async src="https://tally.so/widgets/embed.js"></script>
     
     <style>
-        /* Helle Standard-Farben */
         :root {
             --bambu-green: #00A65A; 
             --bambu-green-hover: #00894A;
-            --bg-color: #f9fafb;
+            --bambu-light: rgba(0, 166, 90, 0.12);
+            --bg-color: #f3f4f6;
             --card-bg: #ffffff;
-            --text-main: #1f2937;
+            --text-main: #111827;
             --text-muted: #4b5563;
             --border-color: #e5e7eb;
-            --box-bg: #f3f4f6;
+            --box-bg: #f9fafb;
             --spool-plastic: #374151;
             --highlight-bg: #eef2ff;
-            --highlight-text: #4f46e5;
+            --highlight-text: #4338ca;
+            --danger: #ef4444;
         }
 
-        /* Automatischer Dark Mode */
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #111827;
-                --card-bg: #1f2937;
-                --text-main: #f9fafb;
-                --text-muted: #9ca3af;
-                --border-color: #374151;
-                --box-bg: #374151;
-                --spool-plastic: #9ca3af;
-                --highlight-bg: #3730a3;
-                --highlight-text: #e0e7ff;
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-main: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --box-bg: #0f172a;
+                --spool-plastic: #94a3b8;
+                --highlight-bg: rgba(67, 56, 202, 0.25);
+                --highlight-text: #c7d2fe;
             }
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding-bottom: 90px; 
+            padding-bottom: 100px;
+            line-height: 1.5;
         }
 
-        /* PC / DESKTOP LAYOUT (Grid) */
         .container {
-            max-width: 1000px;
+            max-width: 1040px;
             margin: 0 auto;
             padding: 20px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 25px;
+            gap: 24px;
         }
 
-        @media (min-width: 800px) {
-            .container {
-                grid-template-columns: 1fr 1fr;
-            }
-            .full-width {
-                grid-column: 1 / -1; 
-            }
+        @media (min-width: 820px) {
+            .container { grid-template-columns: 1fr 1fr; }
+            .full-width { grid-column: 1 / -1; }
         }
 
         .section-card {
             background: var(--card-bg);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 28px;
+            border-radius: 22px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
             border: 1px solid var(--border-color);
             height: fit-content;
         }
 
-        h1 { font-size: 28px; margin-top: 0; margin-bottom: 10px; }
-        h2 { font-size: 20px; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        p { color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
+        h1 { font-size: 30px; margin: 0 0 12px 0; letter-spacing: -0.5px; }
+        h2 { font-size: 21px; margin: 0 0 16px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        p { color: var(--text-muted); font-size: 15px; margin: 0 0 16px 0; }
+
+        /* --- HERO & BILDER --- */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+        @media (min-width: 760px) {
+            .hero-grid { grid-template-columns: 1.1fr 0.9fr; }
+        }
 
         .image-placeholder {
             width: 100%;
             height: auto;
-            max-height: 350px;
+            max-height: 320px;
             background-color: var(--box-bg);
-            border-radius: 12px;
-            margin-bottom: 15px;
+            border-radius: 16px;
             object-fit: cover;
             border: 1px solid var(--border-color);
             display: block;
         }
 
-        .printers { display: flex; gap: 10px; margin-bottom: 15px; }
-        .badge { background-color: var(--box-bg); color: var(--text-main); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid var(--border-color); }
+        .printers { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .badge { 
+            background-color: var(--bambu-light); 
+            color: var(--bambu-green); 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            border: 1px solid rgba(0, 166, 90, 0.3);
+            user-select: none;
+        }
 
-        /* --- DROPDOWN DESIGN --- */
+        /* --- INTERAKTIONSSTRUKTUR: 3 SCHRITTE LEISTE --- */
+        .steps-bar {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid var(--border-color);
+        }
+        @media (min-width: 650px) {
+            .steps-bar { grid-template-columns: repeat(3, 1fr); }
+        }
+        .step-box {
+            background-color: var(--box-bg);
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .step-num {
+            background-color: var(--bambu-green);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-text strong { display: block; font-size: 14px; color: var(--text-main); margin-bottom: 2px; }
+        .step-text span { font-size: 13px; color: var(--text-muted); }
+
+        /* --- MATERIAL & INTERAKTIVE ENTSCHEIDUNGSHILFE --- */
+        .material-controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        @media (min-width: 650px) {
+            .material-controls { grid-template-columns: 280px 1fr; align-items: stretch; }
+        }
+
         .material-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 14px;
-            color: var(--text-muted);
+            color: var(--text-main);
         }
 
         .custom-select {
             width: 100%;
-            padding: 14px 15px;
+            padding: 14px 16px;
             background-color: var(--box-bg);
             color: var(--text-main);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
             font-size: 16px;
+            font-weight: 600;
             font-family: inherit;
-            margin-bottom: 15px;
             cursor: pointer;
             outline: none;
-            box-sizing: border-box;
+            transition: border-color 0.2s;
         }
-        
         .custom-select:focus { border-color: var(--bambu-green); }
 
-        .color-section { display: none; margin-bottom: 20px; }
-
-        /* --- NEUER HINWEIS FÜR SONDERFARBEN --- */
-        .special-request-box {
-            background-color: var(--highlight-bg);
-            color: var(--highlight-text);
-            padding: 12px 16px;
+        .material-helper-box {
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--bambu-green);
+            padding: 14px 18px;
             border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
+            flex-direction: column;
+            justify-content: center;
         }
+        .material-helper-box strong { font-size: 15px; margin-bottom: 4px; color: var(--text-main); }
+        .material-helper-box span { font-size: 14px; color: var(--text-muted); }
 
-        /* --- FILAMENT SPULEN-OPTIK --- */
+        /* --- SPULEN-OPTIK --- */
         .color-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
+            margin-top: 10px;
         }
         .color-item {
             display: flex;
@@ -147,22 +209,23 @@
             gap: 10px;
             background-color: var(--box-bg);
             color: var(--text-main);
-            padding: 8px 16px 8px 12px;
+            padding: 9px 18px 9px 12px;
             border-radius: 30px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             border: 1px solid var(--border-color);
+            transition: transform 0.15s;
         }
+        .color-item:hover { transform: translateY(-2px); }
         
         .spool-icon {
-            width: 24px; height: 24px;
+            width: 26px; height: 26px;
             border-radius: 50%;
             border: 4px solid var(--spool-plastic);
             position: relative;
-            box-sizing: border-box;
             box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
+            flex-shrink: 0;
         }
-        
         .spool-icon::after {
             content: '';
             position: absolute;
@@ -173,120 +236,61 @@
             border-radius: 50%;
         }
 
-        .step-list { margin: 0; padding-left: 20px; color: var(--text-muted); line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
-        .platform-btn { display: inline-block; text-decoration: none; background-color: var(--box-bg); color: var(--text-main); padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; text-align: center; border: 1px solid var(--border-color); }
-
-        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: center; z-index: 1000; }
-        button.tally-btn { background-color: var(--bambu-green); color: white; border: none; padding: 16px 32px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(0, 166, 90, 0.3); }
-        button.tally-btn:hover { background-color: var(--bambu-green-hover); }
-    </style>
-    
-    <script>
-        function updateColors() {
-            document.getElementById('colors-pla').style.display = 'none';
-            document.getElementById('colors-petg').style.display = 'none';
-            document.getElementById('colors-tpu').style.display = 'none';
-            
-            var selectedMaterial = document.getElementById('material-selector').value;
-            document.getElementById('colors-' + selectedMaterial).style.display = 'block';
+        .special-request-box {
+            background-color: var(--highlight-bg);
+            color: var(--highlight-text);
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 22px;
         }
-    </script>
-</head>
-<body onload="updateColors()">
 
-    <div class="container">
-        
-        <!-- 1. KOPFBEREICH -->
-        <div class="section-card full-width">
-            <img src="Bambu.jpeg" alt="Foto meiner Drucker" class="image-placeholder">
-            <h1>Mein 3D-Druck Service</h1>
-            <div class="printers">
-                <span class="badge">Bambu Lab P1S</span>
-                <span class="badge">Bambu Lab A1 Mini</span>
-            </div>
-            <p>Willkommen! Such dir ein cooles Modell im Internet aus oder schick mir deine eigene Datei, und ich drucke es für dich in höchster Qualität.</p>
-        </div>
+        /* --- PLATTFORM KARTEN --- */
+        .step-list { margin: 0 0 18px 0; padding-left: 20px; color: var(--text-muted); font-size: 14px; }
+        .step-list li { margin-bottom: 6px; }
+        .platform-btn { 
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            text-decoration: none; 
+            background-color: var(--box-bg); 
+            color: var(--text-main); 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            font-size: 15px; 
+            border: 1px solid var(--border-color); 
+            transition: all 0.2s;
+        }
+        .platform-btn:hover {
+            border-color: var(--bambu-green);
+            color: var(--bambu-green);
+            transform: translateY(-2px);
+        }
 
-
-        <!-- 2. MATERIAL & FARBEN -->
-        <div class="section-card full-width">
-            <h2>Verfügbare Filament-Spulen</h2>
-            
-            <label for="material-selector" class="material-label">Wähle ein Material:</label>
-            <select id="material-selector" class="custom-select" onchange="updateColors()">
-                <option value="pla">PLA (Standard / Deko)</option>
-                <option value="petg">PETG (Stabil & Outdoor)</option>
-                <option value="tpu">TPU (Flexibel / Gummi)</option>
-            </select>
-
-            <div id="colors-pla" class="color-section">
-                <div class="color-grid">
-                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                    <div class="color-item"><span class="spool-icon" style="background-color: white;"></span> Weiß</div>
-                    <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span> Silber</div>
-                </div>
-            </div>
-
-            <div id="colors-petg" class="color-section">
-                <div class="color-grid">
-                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                    <div class="color-item"><span class="spool-icon" style="background-color: red;"></span> Rot</div>
-                    <div class="color-item"><span class="spool-icon" style="background-color: #0055ff;"></span> Blau</div>
-                </div>
-            </div>
-
-            <div id="colors-tpu" class="color-section">
-                <div class="color-grid">
-                    <div class="color-item"><span class="spool-icon" style="background-color: black;"></span> Schwarz</div>
-                </div>
-            </div>
-
-            <!-- Der neue Hinweis-Kasten -->
-            <div class="special-request-box">
-                💡 Deine Wunschfarbe ist nicht dabei? Kein Problem! Auf Anfrage besorge ich gerne auch neue Farben oder spezielle Materialien für dein Projekt.
-            </div>
-        </div>
-
-
-        <!-- 3. MAKERWORLD -->
-        <div class="section-card">
-            <h2>Modelle auf MakerWorld</h2>
-            <img src="Makerworld.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
-            <p>Die beste Plattform für Bambu Lab Drucker.</p>
-            <ol class="step-list">
-                <li>Suche dir ein Modell aus und kopiere den Link aus dem Browser.</li>
-                <li>Klicke unten auf "Jetzt bestellen" und füge den Link ein!</li>
-            </ol>
-            <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
-        </div>
-
-
-        <!-- 4. THANGS -->
-        <div class="section-card">
-            <h2>Suchmaschine: Thangs.com</h2>
-            <img src="Thangs.jpg" alt="Screenshot Thangs" class="image-placeholder">
-            <p>Durchsucht fast alle 3D-Druck-Seiten gleichzeitig. Ideal für spezielle Wünsche!</p>
-            <ol class="step-list">
-                <li>Suche nach deinem Wunschbegriff (auf Englisch).</li>
-                <li>Kopiere die Modell-Adresse aus dem Browser.</li>
-                <li>Füge den Link über den Bestell-Button bei mir ein.</li>
-            </ol>
-            <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
-        </div>
-
-    </div>
-
-    <!-- FIXIERTER BUTTON -->
-    <div class="sticky-footer">
-        <button class="tally-btn" 
-                data-tally-open="44VqbB" 
-                data-tally-layout="modal" 
-                data-tally-width="400" 
-                data-tally-emoji-text="👋" 
-                data-tally-emoji-animation="wave">
-            Jetzt bestellen / Datei hochladen
-        </button>
-    </div>
-
-</body>
-</html>
+        /* --- STICKY FOOTER --- */
+        .sticky-footer { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background-color: var(--card-bg); 
+            border-top: 1px solid var(--border-color); 
+            padding: 14px 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            gap: 15px;
+            z-index: 900; 
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        button.tally-btn { 
+            background-color: var(--bambu-green); 
+            color: white; 
+            border: none; 
+            padding: 16px 32px; 
+            font-size: 16px; 
+            font-weight:
