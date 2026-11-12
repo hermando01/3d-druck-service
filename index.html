@@ -106,7 +106,10 @@
             border: 1px solid rgba(0, 166, 90, 0.3);
             cursor: pointer;
             user-select: none;
+            -webkit-user-select: none;
+            transition: transform 0.1s;
         }
+        .badge:active { transform: scale(0.95); }
 
         .steps-bar {
             display: grid;
@@ -356,7 +359,8 @@
             <div class="hero-grid">
                 <div>
                     <div class="printers">
-                        <span class="badge" id="secret-trigger">⚡ Bambu Lab P1S</span>
+                        <!-- GEHEIMER TRIGGER: 5x klicken (jetzt direkt als stabiles onclick) -->
+                        <span class="badge" id="secret-trigger" onclick="handleSecretClick()">⚡ Bambu Lab P1S</span>
                         <span class="badge">🎯 Bambu Lab A1 Mini</span>
                     </div>
                     <h1>Mein 3D-Druck Service</h1>
@@ -412,7 +416,12 @@
             </div>
 
             <label class="material-label">2. Aktuell verfügbare Farben auf Lager:</label>
-            <div id="customer-color-grid" class="color-grid"></div>
+            <div id="customer-color-grid" class="color-grid">
+                <!-- Feste Fallback-Anzeige, damit die Liste niemals leer ist -->
+                <div class="color-item"><span class="spool-icon" style="background-color: #111111;"></span>Schwarz</div>
+                <div class="color-item"><span class="spool-icon" style="background-color: #ffffff;"></span>Weiß</div>
+                <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span>Silber / Grau</div>
+            </div>
 
             <div class="special-request-box">
                 💡 <strong>Deine Wunschfarbe fehlt?</strong> Kein Problem! Schreib sie einfach ins Bestellformular – auf Anfrage besorge ich gerne neue Farben oder spezielle Filamente für dein Projekt.
@@ -533,7 +542,6 @@
 
                     <hr style="border:none; border-top:1px solid var(--border-color); margin:18px 0;">
 
-                    <!-- AUFTRAGS-SPEZIFISCHE EINGABEN -->
                     <div class="form-grid form-grid-3">
                         <div class="input-group">
                             <label>Gewicht laut Slicer (Gramm):</label>
@@ -549,7 +557,6 @@
                         </div>
                     </div>
 
-                    <!-- NEU: STUNDENLOHN + ARBEITSZEIT IN MINUTEN -->
                     <div class="form-grid form-grid-4" style="margin-top:12px;">
                         <div class="input-group">
                             <label>Dein Stundenlohn (€/h):</label>
@@ -607,3 +614,273 @@
                         <div class="input-group">
                             <label>Spulenfarbe:</label>
                             <input type="color" id="new-fil-hex" value="#00A65A" style="height:43px; padding:4px; cursor:pointer;">
+                        </div>
+                    </div>
+                    <button class="action-btn" onclick="addFilamentSpool()">+ Spule hinzufügen</button>
+
+                    <h3 style="margin-top:24px; font-size:16px;">Aktuelles Sortiment:</h3>
+                    <div id="admin-spool-list" class="color-grid" style="margin-bottom:20px;"></div>
+                </div>
+
+                <!-- DIREKTER GITHUB LIVE-SPEICHER BUTTON -->
+                <hr style="border:none; border-top:1px solid var(--border-color); margin:20px 0;">
+                <button class="action-btn cloud" onclick="pushDirectlyToGitHub()">☁️ Jetzt live auf GitHub speichern (Spulen & Standardwerte sichern)</button>
+                <div id="cloud-status" class="status-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* === DATA_START === */
+        var filamentData = {
+            pla: [
+                { name: "Schwarz", hex: "#111111" },
+                { name: "Weiß", hex: "#ffffff" },
+                { name: "Silber / Grau", hex: "#C0C0C0" }
+            ],
+            petg: [
+                { name: "Schwarz", hex: "#111111" },
+                { name: "Signalrot", hex: "#e11d48" },
+                { name: "Königsblau", hex: "#0055ff" }
+            ],
+            tpu: [
+                { name: "Schwarz (Flex)", hex: "#111111" }
+            ],
+            abs: [
+                { name: "Anthrazit", hex: "#374151" }
+            ]
+        };
+
+        var printerPresets = {
+            p1s: { watt: 125, wear: 1.00 },
+            p1s_dryer: { watt: 185, wear: 1.15 },
+            a1mini: { watt: 85, wear: 0.65 },
+            a1mini_dryer: { watt: 190, wear: 0.80 },
+            defaults: { kwh: 0.32, spoolprice: 22.00, wage: 15.00, fail: 10, margin: 30 }
+        };
+        /* === DATA_END === */
+
+        var materialInfos = {
+            pla: {
+                title: "PLA – Der Allrounder für Deko, Figuren & Alltag",
+                desc: "Sehr feine Druckqualität. Ideal für Indoor-Objekte, Geschenke und Gehäuse (nicht über 55 °C lagern)."
+            },
+            petg: {
+                title: "PETG – Extra stabil, wetterfest & hitzebeständig",
+                desc: "Hält Sonne sowie Regen problemlos aus. Perfekt für Halterungen, Garten-Teile und Mechanik."
+            },
+            tpu: {
+                title: "TPU – Biegsam, elastisch & unzerstörbar wie Gummi",
+                desc: "Federt Stöße ab. Ideal für Handyhüllen, Dämpfer, Dichtungen oder Reifen."
+            },
+            abs: {
+                title: "ABS – Hochfestes technisches Material",
+                desc: "Sehr hohe Temperaturbeständigkeit (bis ca. 95 °C) für technische Funktionsbauteile."
+            }
+        };
+
+        function safeGetStorage(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+        function safeSetStorage(key, val) {
+            try { localStorage.setItem(key, val); } catch (e) {}
+        }
+        function safeRemoveStorage(key) {
+            try { localStorage.removeItem(key); } catch (e) {}
+        }
+
+        // Lade lokalen Zwischenspeicher, falls vorhanden (damit Änderungen sofort sichtbar sind)
+        var localFil = safeGetStorage("local_backup_filaments");
+        if (localFil) {
+            try {
+                var parsedFil = JSON.parse(localFil);
+                if (parsedFil && parsedFil.pla) filamentData = parsedFil;
+            } catch (e) {}
+        }
+        var localPrint = safeGetStorage("local_backup_presets");
+        if (localPrint) {
+            try {
+                var parsedPrint = JSON.parse(localPrint);
+                if (parsedPrint && parsedPrint.p1s) printerPresets = parsedPrint;
+            } catch (e) {}
+        }
+
+        function renderCustomerColors() {
+            var selectEl = document.getElementById("material-selector");
+            var helperBox = document.getElementById("material-helper");
+            var grid = document.getElementById("customer-color-grid");
+            if (!selectEl || !helperBox || !grid) return;
+
+            var mat = selectEl.value || "pla";
+            if (materialInfos[mat]) {
+                helperBox.innerHTML = "<strong>" + materialInfos[mat].title + "</strong><span>" + materialInfos[mat].desc + "</span>";
+            }
+
+            var list = (filamentData && filamentData[mat]) ? filamentData[mat] : [];
+            if (list.length === 0) {
+                grid.innerHTML = "<p style='margin:0; font-size:14px;'>Aktuell nur auf Anfrage verfügbar.</p>";
+                return;
+            }
+            var html = "";
+            for (var i = 0; i < list.length; i++) {
+                html += '<div class="color-item"><span class="spool-icon" style="background-color: ' + list[i].hex + ';"></span>' + list[i].name + '</div>';
+            }
+            grid.innerHTML = html;
+        }
+
+        // --- KUGELSICHERER GEHEIM-TRIGGER ---
+        var secretClicks = 0;
+        var secretTimer = null;
+        function handleSecretClick() {
+            secretClicks++;
+            clearTimeout(secretTimer);
+            if (secretClicks >= 5) {
+                secretClicks = 0;
+                openAdminModal();
+            } else {
+                secretTimer = setTimeout(function() { secretClicks = 0; }, 2500);
+            }
+        }
+
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.shiftKey && (e.key === "L" || e.key === "l")) {
+                e.preventDefault();
+                openAdminModal();
+            }
+        });
+
+        function checkUrlHash() {
+            if (window.location.hash === "#admin" || window.location.hash === "#cockpit") {
+                openAdminModal();
+            }
+        }
+        window.addEventListener("hashchange", checkUrlHash);
+
+        function autoDetectGitHubRepo() {
+            var host = window.location.hostname;
+            var path = window.location.pathname.split("/").filter(Boolean);
+            if (host.indexOf(".github.io") !== -1) {
+                var ownerInput = document.getElementById("gh-owner");
+                var repoInput = document.getElementById("gh-repo");
+                if (ownerInput && !ownerInput.value) ownerInput.value = host.split(".")[0];
+                if (repoInput && !repoInput.value && path.length > 0) repoInput.value = path[0];
+            }
+        }
+
+        function openAdminModal() {
+            var overlay = document.getElementById("admin-overlay");
+            if (overlay) overlay.style.display = "flex";
+            autoDetectGitHubRepo();
+            var savedToken = safeGetStorage("gh_pat_token");
+            var savedOwner = safeGetStorage("gh_owner");
+            var savedRepo = safeGetStorage("gh_repo");
+            if (savedToken && savedOwner && savedRepo) {
+                document.getElementById("gh-token").value = savedToken;
+                document.getElementById("gh-owner").value = savedOwner;
+                document.getElementById("gh-repo").value = savedRepo;
+                showDashboard();
+            }
+        }
+
+        function closeAdmin() {
+            document.getElementById("admin-overlay").style.display = "none";
+        }
+
+        function resetGitHubAuth() {
+            safeRemoveStorage("gh_pat_token");
+            safeRemoveStorage("gh_owner");
+            safeRemoveStorage("gh_repo");
+            document.getElementById("admin-dashboard-view").style.display = "none";
+            document.getElementById("admin-login-view").style.display = "block";
+            document.getElementById("login-status").innerText = "Zugangsdaten zurückgesetzt. Bitte neu einloggen.";
+        }
+
+        async function verifyGitHubToken() {
+            var owner = document.getElementById("gh-owner").value.trim();
+            var repo = document.getElementById("gh-repo").value.trim();
+            var token = document.getElementById("gh-token").value.trim();
+            var status = document.getElementById("login-status");
+
+            if (!owner || !repo || !token) {
+                status.style.color = "#ef4444";
+                status.innerText = "Bitte alle drei Felder ausfüllen!";
+                return;
+            }
+
+            status.style.color = "var(--text-main)";
+            status.innerText = "Prüfe Schlüssel bei GitHub...";
+
+            try {
+                var res = await fetch("https://api.github.com/repos/" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo), {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                var data = await res.json();
+                if (res.ok && data.permissions && data.permissions.push) {
+                    safeSetStorage("gh_pat_token", token);
+                    safeSetStorage("gh_owner", owner);
+                    safeSetStorage("gh_repo", repo);
+                    status.innerText = "";
+                    showDashboard();
+                } else {
+                    status.style.color = "#ef4444";
+                    status.innerText = "Zugriff verweigert! Token ungültig oder keine Schreibrechte.";
+                }
+            } catch (err) {
+                status.style.color = "#ef4444";
+                status.innerText = "Verbindungsfehler zu GitHub.";
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById("admin-login-view").style.display = "none";
+            document.getElementById("admin-dashboard-view").style.display = "block";
+            
+            var def = printerPresets.defaults || { kwh: 0.32, spoolprice: 22.00, wage: 15.00, fail: 10, margin: 30 };
+            document.getElementById("calc-kwh").value = def.kwh !== undefined ? def.kwh : 0.32;
+            document.getElementById("calc-spoolprice").value = def.spoolprice !== undefined ? def.spoolprice : 22.00;
+            document.getElementById("calc-wage").value = def.wage !== undefined ? def.wage : 15.00;
+            document.getElementById("calc-fail").value = def.fail !== undefined ? def.fail : 10;
+            document.getElementById("calc-margin").value = def.margin !== undefined ? def.margin : 30;
+
+            applyPrinterPreset();
+            renderAdminSpoolList();
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById("admin-tab-calc").style.display = (tab === 'calc') ? "block" : "none";
+            document.getElementById("admin-tab-filament").style.display = (tab === 'filament') ? "block" : "none";
+            document.getElementById("tab-calc-btn").className = (tab === 'calc') ? "tab-btn active" : "tab-btn";
+            document.getElementById("tab-fil-btn").className = (tab === 'filament') ? "tab-btn active" : "tab-btn";
+        }
+
+        function applyPrinterPreset() {
+            var p = document.getElementById("calc-printer").value;
+            if (!printerPresets[p]) {
+                printerPresets[p] = { watt: 125, wear: 1.00 };
+            }
+            document.getElementById("calc-watt").value = printerPresets[p].watt;
+            document.getElementById("calc-wear").value = printerPresets[p].wear;
+            runCalculation();
+        }
+
+        function saveCalcDefaults() {
+            var p = document.getElementById("calc-printer").value;
+            if (!printerPresets[p]) printerPresets[p] = {};
+            printerPresets[p].watt = parseFloat(document.getElementById("calc-watt").value) || 0;
+            printerPresets[p].wear = parseFloat(document.getElementById("calc-wear").value) || 0;
+            printerPresets.defaults = {
+                kwh: parseFloat(document.getElementById("calc-kwh").value) || 0,
+                spoolprice: parseFloat(document.getElementById("calc-spoolprice").value) || 0,
+                wage: parseFloat(document.getElementById("calc-wage").value) || 0,
+                fail: parseFloat(document.getElementById("calc-fail").value) || 0,
+                margin: parseFloat(document.getElementById("calc-margin").value) || 0
+            };
+            safeSetStorage("local_backup_presets", JSON.stringify(printerPresets));
+        }
+
+        function runCalculation() {
+            var watt = parseFloat(document.getElementById("calc-watt").value) || 0;
+            var wearPerHour = parseFloat(document.getElementById("calc-wear").value) || 0;
+            var kwhPrice = parseFloat(document.getElementById("calc-kwh").value) || 0;
+            var spoolPrice = parseFloat(document.getElementById("calc-spoolprice").value) || 0;
+            var weight = parseFloat(document.getElement
