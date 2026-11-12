@@ -272,7 +272,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.78);
             display: none;
             justify-content: center;
             align-items: center;
@@ -339,8 +339,9 @@
             padding: 13px 20px; border-radius: 12px; font-weight: 700;
             cursor: pointer; width: 100%; margin-top: 15px; font-size: 15px;
         }
-        .action-btn.secondary { background: #4f46e5; }
+        .action-btn.cloud { background: #4f46e5; }
         .delete-spool-btn { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; margin-left: 6px; }
+        .status-msg { margin-top: 12px; font-size: 14px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -407,12 +408,7 @@
             </div>
 
             <label class="material-label">2. Aktuell verfügbare Farben auf Lager:</label>
-            <div id="customer-color-grid" class="color-grid">
-                <!-- Fallback-Spulen direkt im HTML, falls JS noch lädt -->
-                <div class="color-item"><span class="spool-icon" style="background-color: #111111;"></span>Schwarz</div>
-                <div class="color-item"><span class="spool-icon" style="background-color: #ffffff;"></span>Weiß</div>
-                <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span>Silber / Grau</div>
-            </div>
+            <div id="customer-color-grid" class="color-grid"></div>
 
             <div class="special-request-box">
                 💡 <strong>Deine Wunschfarbe fehlt?</strong> Kein Problem! Schreib sie einfach ins Bestellformular – auf Anfrage besorge ich gerne neue Farben oder spezielle Filamente für dein Projekt.
@@ -457,38 +453,45 @@
         </button>
     </div>
 
-    <!-- ADMIN MODAL -->
+    <!-- ====================================================
+         ECHTES GITHUB-CLOUD ADMIN-COCKPIT
+         ==================================================== -->
     <div class="modal-overlay" id="admin-overlay">
         <div class="admin-modal">
             <div class="admin-header">
-                <h2 style="margin:0; border:none; padding:0;">🔒 Internes Admin-Cockpit</h2>
+                <h2 style="margin:0; border:none; padding:0;">🔒 GitHub Cloud Admin-Cockpit</h2>
                 <button class="close-btn" onclick="closeAdmin()">✕ Schließen</button>
             </div>
 
+            <!-- LOGIN ÜBER ECHTEN GITHUB-TOKEN (FÜR FREMDE UNMÖGLICH) -->
             <div id="admin-login-view">
-                <p>Bitte bestätige deine Identität (Beim ersten Mal legst du E-Mail & PIN selbst fest):</p>
+                <p>Logge dich einmalig mit deinem persönlichen <strong>GitHub Access Token</strong> ein. Dadurch kann niemand sonst hier hinein und deine Änderungen werden direkt live auf GitHub gespeichert!</p>
                 <div class="form-grid">
                     <div class="input-group">
-                        <label>Deine Admin E-Mail:</label>
-                        <input type="email" id="login-email" placeholder="name@beispiel.de">
+                        <label>Dein GitHub-Benutzername:</label>
+                        <input type="text" id="gh-owner" placeholder="z.B. hermando">
                     </div>
                     <div class="input-group">
-                        <label>Geheim-PIN (mind. 3 Zeichen):</label>
-                        <input type="password" id="login-pin" placeholder="••••">
+                        <label>Repository-Name:</label>
+                        <input type="text" id="gh-repo" placeholder="z.B. 3d-druck-service">
                     </div>
                 </div>
-                <label style="display:flex; align-items:center; gap:8px; margin-top:14px; font-size:14px; cursor:pointer;">
-                    <input type="checkbox" id="remember-me" checked> Auf diesem Gerät eingeloggt bleiben
-                </label>
-                <button class="action-btn" onclick="verifyAdminLogin()">Zugang freischalten</button>
+                <div class="input-group" style="margin-top:14px;">
+                    <label>Geheimer GitHub Token (Personal Access Token):</label>
+                    <input type="password" id="gh-token" placeholder="github_pat_...">
+                </div>
+                <button class="action-btn" onclick="verifyGitHubToken()">Mit GitHub verbinden & einloggen</button>
+                <div id="login-status" class="status-msg"></div>
             </div>
 
+            <!-- EINGELOGGTES DASHBOARD -->
             <div id="admin-dashboard-view" style="display:none;">
                 <div class="admin-tabs">
                     <button class="tab-btn active" id="tab-calc-btn" onclick="switchAdminTab('calc')">🧮 Slice & Price Rechner</button>
                     <button class="tab-btn" id="tab-fil-btn" onclick="switchAdminTab('filament')">🎨 Filament-Manager</button>
                 </div>
 
+                <!-- RECHNER -->
                 <div id="admin-tab-calc">
                     <div class="form-grid">
                         <div class="input-group">
@@ -500,22 +503,22 @@
                         </div>
                         <div class="input-group">
                             <label>Strompreis (€ / kWh):</label>
-                            <input type="number" id="calc-kwh" value="0.32" step="0.01" oninput="runCalculation()">
+                            <input type="number" id="calc-kwh" step="0.01" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                     </div>
 
                     <div class="form-grid form-grid-3" style="margin-top:12px;">
                         <div class="input-group">
                             <label>Verbrauch Drucker (Watt):</label>
-                            <input type="number" id="calc-watt" value="150" oninput="savePrinterPreset(); runCalculation()">
+                            <input type="number" id="calc-watt" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                         <div class="input-group">
                             <label>Maschinen-Abnutzung (€/h):</label>
-                            <input type="number" id="calc-wear" value="0.20" step="0.05" oninput="savePrinterPreset(); runCalculation()">
+                            <input type="number" id="calc-wear" step="0.05" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                         <div class="input-group">
                             <label>Spulenpreis (€ / 1000g):</label>
-                            <input type="number" id="calc-spoolprice" value="20.00" step="0.50" oninput="runCalculation()">
+                            <input type="number" id="calc-spoolprice" step="0.50" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                     </div>
 
@@ -539,15 +542,15 @@
                     <div class="form-grid form-grid-3" style="margin-top:12px;">
                         <div class="input-group">
                             <label>Fehldruck-Risiko (%):</label>
-                            <input type="number" id="calc-fail" value="10" oninput="runCalculation()">
+                            <input type="number" id="calc-fail" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                         <div class="input-group">
                             <label>Rüstzeit / Arbeit (€ pauschal):</label>
-                            <input type="number" id="calc-labor" value="2.00" step="0.50" oninput="runCalculation()">
+                            <input type="number" id="calc-labor" step="0.50" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                         <div class="input-group">
                             <label>Gewinn-Aufschlag (%):</label>
-                            <input type="number" id="calc-margin" value="30" oninput="runCalculation()">
+                            <input type="number" id="calc-margin" oninput="saveCalcDefaults(); runCalculation()">
                         </div>
                     </div>
 
@@ -565,6 +568,7 @@
                     </div>
                 </div>
 
+                <!-- FILAMENT MANAGER -->
                 <div id="admin-tab-filament" style="display:none;">
                     <p>Füge hier neue Spulen hinzu oder lösche leere Farben:</p>
                     <div class="form-grid form-grid-3" style="align-items:end; background:var(--box-bg); padding:16px; border-radius:14px; border:1px solid var(--border-color);">
@@ -586,13 +590,16 @@
                             <input type="color" id="new-fil-hex" value="#00A65A" style="height:43px; padding:4px; cursor:pointer;">
                         </div>
                     </div>
-                    <button class="action-btn" onclick="addFilamentSpool()">+ Spule zum Sortiment hinzufügen</button>
+                    <button class="action-btn" onclick="addFilamentSpool()">+ Spule hinzufügen</button>
 
-                    <h3 style="margin-top:24px; font-size:16px;">Aktuelle Spulen:</h3>
+                    <h3 style="margin-top:24px; font-size:16px;">Aktuelles Sortiment:</h3>
                     <div id="admin-spool-list" class="color-grid" style="margin-bottom:20px;"></div>
-
-                    <button class="action-btn secondary" onclick="exportUpdatedHTML()">💾 Aktualisierte index.html herunterladen</button>
                 </div>
+
+                <!-- DIREKTER GITHUB LIVE-SPEICHER BUTTON -->
+                <hr style="border:none; border-top:1px solid var(--border-color); margin:20px 0;">
+                <button class="action-btn cloud" onclick="pushDirectlyToGitHub()">☁️ Jetzt live auf GitHub speichern (ohne Datei-Upload!)</button>
+                <div id="cloud-status" class="status-msg"></div>
             </div>
         </div>
     </div>
@@ -619,7 +626,8 @@
 
         var printerPresets = {
             p1s: { watt: 150, wear: 0.20 },
-            a1mini: { watt: 70, wear: 0.12 }
+            a1mini: { watt: 70, wear: 0.12 },
+            defaults: { kwh: 0.32, spoolprice: 20.00, fail: 10, labor: 2.00, margin: 30 }
         };
     </script>
 
@@ -643,18 +651,17 @@
             }
         };
 
-        function safeStorageGet(key) {
-            try { return localStorage.getItem(key); } catch(e) { return null; }
+        // Automatische Erkennung deines GitHub-Benutzernamens & Repos anhand der URL
+        function autoDetectGitHubRepo() {
+            var host = window.location.hostname;
+            var path = window.location.pathname.split("/").filter(Boolean);
+            if (host.indexOf(".github.io") !== -1) {
+                document.getElementById("gh-owner").value = host.split(".")[0];
+                if (path.length > 0) {
+                    document.getElementById("gh-repo").value = path[0];
+                }
+            }
         }
-        function safeStorageSet(key, val) {
-            try { localStorage.setItem(key, val); } catch(e) {}
-        }
-
-        var savedFil = safeStorageGet("custom_filament_data");
-        if (savedFil) { try { filamentData = JSON.parse(savedFil); } catch(e) {} }
-
-        var savedPrint = safeStorageGet("custom_printer_presets");
-        if (savedPrint) { try { printerPresets = JSON.parse(savedPrint); } catch(e) {} }
 
         function renderCustomerColors() {
             var mat = document.getElementById("material-selector").value;
@@ -673,6 +680,7 @@
             }
         }
 
+        // Geheimer 5-Klick Trigger & Strg+Shift+L
         var clickCount = 0;
         var clickTimer = null;
         document.getElementById("secret-trigger").addEventListener("click", function() {
@@ -695,7 +703,14 @@
 
         function openAdminModal() {
             document.getElementById("admin-overlay").style.display = "flex";
-            if (safeStorageGet("admin_auth_token") === "verified_owner") {
+            autoDetectGitHubRepo();
+            var savedToken = localStorage.getItem("gh_pat_token");
+            var savedOwner = localStorage.getItem("gh_owner");
+            var savedRepo = localStorage.getItem("gh_repo");
+            if (savedToken && savedOwner && savedRepo) {
+                document.getElementById("gh-token").value = savedToken;
+                document.getElementById("gh-owner").value = savedOwner;
+                document.getElementById("gh-repo").value = savedRepo;
                 showDashboard();
             }
         }
@@ -704,29 +719,56 @@
             document.getElementById("admin-overlay").style.display = "none";
         }
 
-        function verifyAdminLogin() {
-            var email = document.getElementById("login-email").value.trim().toLowerCase();
-            var pin = document.getElementById("login-pin").value.trim();
-            var storedEmail = safeStorageGet("owner_email") || email;
-            var storedPin = safeStorageGet("owner_pin") || pin;
+        // Prüft live gegen die echte GitHub-API, ob der Token dir gehört und Schreibrechte hat
+        async function verifyGitHubToken() {
+            var owner = document.getElementById("gh-owner").value.trim();
+            var repo = document.getElementById("gh-repo").value.trim();
+            var token = document.getElementById("gh-token").value.trim();
+            var status = document.getElementById("login-status");
 
-            if (email.indexOf("@") !== -1 && pin.length >= 3 && email === storedEmail && pin === storedPin) {
-                safeStorageSet("owner_email", email);
-                safeStorageSet("owner_pin", pin);
-                if (document.getElementById("remember-me").checked) {
-                    safeStorageSet("admin_auth_token", "verified_owner");
+            if (!owner || !repo || !token) {
+                status.style.color = "#ef4444";
+                status.innerText = "Bitte alle drei Felder ausfüllen!";
+                return;
+            }
+
+            status.style.color = "var(--text-main)";
+            status.innerText = "Prüfe Schlüssel bei GitHub...";
+
+            try {
+                var res = await fetch("https://api.github.com/repos/" + owner + "/" + repo, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                var data = await res.json();
+                if (res.ok && data.permissions && data.permissions.push) {
+                    localStorage.setItem("gh_pat_token", token);
+                    localStorage.setItem("gh_owner", owner);
+                    localStorage.setItem("gh_repo", repo);
+                    status.innerText = "";
+                    showDashboard();
+                } else {
+                    status.style.color = "#ef4444";
+                    status.innerText = "Zugriff verweigert! Token ungültig oder keine Schreibrechte.";
                 }
-                showDashboard();
-            } else {
-                alert("Bitte gültige E-Mail und korrekte PIN (mind. 3 Zeichen) eingeben!");
+            } catch (err) {
+                status.style.color = "#ef4444";
+                status.innerText = "Verbindungsfehler zu GitHub.";
             }
         }
 
         function showDashboard() {
             document.getElementById("admin-login-view").style.display = "none";
             document.getElementById("admin-dashboard-view").style.display = "block";
+            
+            // Lade gespeicherte Standardwerte in den Rechner
+            var def = printerPresets.defaults || { kwh: 0.32, spoolprice: 20.00, fail: 10, labor: 2.00, margin: 30 };
+            document.getElementById("calc-kwh").value = def.kwh;
+            document.getElementById("calc-spoolprice").value = def.spoolprice;
+            document.getElementById("calc-fail").value = def.fail;
+            document.getElementById("calc-labor").value = def.labor;
+            document.getElementById("calc-margin").value = def.margin;
+
             applyPrinterPreset();
-            runCalculation();
             renderAdminSpoolList();
         }
 
@@ -744,11 +786,17 @@
             runCalculation();
         }
 
-        function savePrinterPreset() {
+        function saveCalcDefaults() {
             var p = document.getElementById("calc-printer").value;
             printerPresets[p].watt = parseFloat(document.getElementById("calc-watt").value) || 0;
             printerPresets[p].wear = parseFloat(document.getElementById("calc-wear").value) || 0;
-            safeStorageSet("custom_printer_presets", JSON.stringify(printerPresets));
+            printerPresets.defaults = {
+                kwh: parseFloat(document.getElementById("calc-kwh").value) || 0,
+                spoolprice: parseFloat(document.getElementById("calc-spoolprice").value) || 0,
+                fail: parseFloat(document.getElementById("calc-fail").value) || 0,
+                labor: parseFloat(document.getElementById("calc-labor").value) || 0,
+                margin: parseFloat(document.getElementById("calc-margin").value) || 0
+            };
         }
 
         function runCalculation() {
@@ -800,7 +848,6 @@
             var hex = document.getElementById("new-fil-hex").value;
             if (!name) { alert("Bitte gib einen Farbnamen ein!"); return; }
             filamentData[mat].push({ name: name, hex: hex });
-            safeStorageSet("custom_filament_data", JSON.stringify(filamentData));
             document.getElementById("new-fil-name").value = "";
             renderAdminSpoolList();
             renderCustomerColors();
@@ -808,21 +855,72 @@
 
         function removeSpool(mat, index) {
             filamentData[mat].splice(index, 1);
-            safeStorageSet("custom_filament_data", JSON.stringify(filamentData));
             renderAdminSpoolList();
             renderCustomerColors();
         }
 
-        function exportUpdatedHTML() {
+        // SPEICHERT DIREKT LIVE AUF GITHUB ÜBER DIE GITHUB REST API
+        async function pushDirectlyToGitHub() {
+            var owner = localStorage.getItem("gh_owner");
+            var repo = localStorage.getItem("gh_repo");
+            var token = localStorage.getItem("gh_pat_token");
+            var status = document.getElementById("cloud-status");
+
+            status.style.color = "var(--text-main)";
+            status.innerText = "⏳ Speichere direkt in dein GitHub-Repository...";
+
+            // 1. Neue Daten sauber in das Daten-Script-Tag schreiben
             var dataScript = document.getElementById("filament-data-script");
-            dataScript.textContent = "\n        var filamentData = " + JSON.stringify(filamentData, null, 4) + ";\n        var printerPresets = " + JSON.stringify(printerPresets, null, 4) + ";\n    ";
-            closeAdmin();
-            var fullHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            var blob = new Blob([fullHTML], { type: "text/html;charset=utf-8" });
-            var a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "index.html";
-            a.click();
+            dataScript.textContent = "\n        var filamentData = " + JSON.stringify(filamentData, null, 12) + ";\n\n        var printerPresets = " + JSON.stringify(printerPresets, null, 12) + ";\n    ";
+
+            // 2. Modal im geklonten HTML schließen, damit Besucher es nicht offen sehen
+            var clone = document.documentElement.cloneNode(true);
+            var cloneOverlay = clone.querySelector("#admin-overlay");
+            if (cloneOverlay) cloneOverlay.style.display = "none";
+            var cloneLogin = clone.querySelector("#admin-login-view");
+            if (cloneLogin) cloneLogin.style.display = "block";
+            var cloneDash = clone.querySelector("#admin-dashboard-view");
+            if (cloneDash) cloneDash.style.display = "none";
+
+            var finalHTML = "<!DOCTYPE html>\n" + clone.outerHTML;
+
+            try {
+                var apiUrl = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/index.html";
+                
+                // Aktuelle Datei-SHA von GitHub abrufen
+                var getRes = await fetch(apiUrl, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                var fileInfo = await getRes.json();
+
+                // UTF-8 sicher in Base64 umwandeln
+                var base64Content = btoa(unescape(encodeURIComponent(finalHTML)));
+
+                // Neue index.html direkt zu GitHub hochladen (Commit)
+                var putRes = await fetch(apiUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: "Update Filamente & Rechner-Presets via Admin-Cockpit",
+                        content: base64Content,
+                        sha: fileInfo.sha
+                    })
+                });
+
+                if (putRes.ok) {
+                    status.style.color = "var(--bambu-green)";
+                    status.innerText = "✅ Erfolgreich direkt auf GitHub gespeichert! (In ca. 60 Sek. für alle Kunden live)";
+                } else {
+                    status.style.color = "#ef4444";
+                    status.innerText = "❌ Fehler beim Speichern auf GitHub.";
+                }
+            } catch (e) {
+                status.style.color = "#ef4444";
+                status.innerText = "❌ Netzwerkfehler beim Speichern.";
+            }
         }
 
         renderCustomerColors();
