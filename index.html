@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein 3D-Druck Service</title>
-    
-    <!-- Tally Popup Script -->
     <script async src="https://tally.so/widgets/embed.js"></script>
-    
     <style>
         :root {
             --bambu-green: #00A65A; 
             --bambu-green-hover: #00894A;
-            --bambu-light: rgba(0, 166, 90, 0.12);
+            --bambu-light: rgba(0, 166, 90, 0.15);
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #111827;
@@ -68,16 +65,14 @@
             background: var(--card-bg);
             padding: 28px;
             border-radius: 22px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
-            height: fit-content;
         }
 
-        h1 { font-size: 30px; margin: 0 0 12px 0; letter-spacing: -0.5px; }
-        h2 { font-size: 21px; margin: 0 0 16px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        h1 { font-size: 30px; margin: 0 0 12px 0; }
+        h2 { font-size: 21px; margin: 0 0 16px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
         p { color: var(--text-muted); font-size: 15px; margin: 0 0 16px 0; }
 
-        /* --- HERO & BILDER --- */
         .hero-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -92,6 +87,7 @@
             width: 100%;
             height: auto;
             max-height: 320px;
+            min-height: 160px;
             background-color: var(--box-bg);
             border-radius: 16px;
             object-fit: cover;
@@ -108,10 +104,10 @@
             font-size: 13px; 
             font-weight: 700; 
             border: 1px solid rgba(0, 166, 90, 0.3);
+            cursor: pointer;
             user-select: none;
         }
 
-        /* --- INTERAKTIONSSTRUKTUR: 3 SCHRITTE LEISTE --- */
         .steps-bar {
             display: grid;
             grid-template-columns: 1fr;
@@ -148,7 +144,6 @@
         .step-text strong { display: block; font-size: 14px; color: var(--text-main); margin-bottom: 2px; }
         .step-text span { font-size: 13px; color: var(--text-muted); }
 
-        /* --- MATERIAL & INTERAKTIVE ENTSCHEIDUNGSHILFE --- */
         .material-controls {
             display: grid;
             grid-template-columns: 1fr;
@@ -156,7 +151,7 @@
             margin-bottom: 20px;
         }
         @media (min-width: 650px) {
-            .material-controls { grid-template-columns: 280px 1fr; align-items: stretch; }
+            .material-controls { grid-template-columns: 280px 1fr; }
         }
 
         .material-label {
@@ -176,12 +171,9 @@
             border-radius: 14px;
             font-size: 16px;
             font-weight: 600;
-            font-family: inherit;
             cursor: pointer;
             outline: none;
-            transition: border-color 0.2s;
         }
-        .custom-select:focus { border-color: var(--bambu-green); }
 
         .material-helper-box {
             background-color: var(--box-bg);
@@ -189,14 +181,10 @@
             border-left: 4px solid var(--bambu-green);
             padding: 14px 18px;
             border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
-        .material-helper-box strong { font-size: 15px; margin-bottom: 4px; color: var(--text-main); }
+        .material-helper-box strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text-main); }
         .material-helper-box span { font-size: 14px; color: var(--text-muted); }
 
-        /* --- SPULEN-OPTIK --- */
         .color-grid {
             display: flex;
             flex-wrap: wrap;
@@ -214,16 +202,13 @@
             font-size: 14px;
             font-weight: 600;
             border: 1px solid var(--border-color);
-            transition: transform 0.15s;
         }
-        .color-item:hover { transform: translateY(-2px); }
         
         .spool-icon {
             width: 26px; height: 26px;
             border-radius: 50%;
             border: 4px solid var(--spool-plastic);
             position: relative;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
             flex-shrink: 0;
         }
         .spool-icon::after {
@@ -243,21 +228,14 @@
             border-radius: 14px;
             font-size: 14px;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             margin-top: 22px;
         }
 
-        /* --- PLATTFORM KARTEN --- */
         .step-list { margin: 0 0 18px 0; padding-left: 20px; color: var(--text-muted); font-size: 14px; }
         .step-list li { margin-bottom: 6px; }
         .platform-btn { 
-            display: inline-flex; 
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
+            display: block; 
+            text-align: center;
             text-decoration: none; 
             background-color: var(--box-bg); 
             color: var(--text-main); 
@@ -266,15 +244,8 @@
             font-weight: 700; 
             font-size: 15px; 
             border: 1px solid var(--border-color); 
-            transition: all 0.2s;
-        }
-        .platform-btn:hover {
-            border-color: var(--bambu-green);
-            color: var(--bambu-green);
-            transform: translateY(-2px);
         }
 
-        /* --- STICKY FOOTER --- */
         .sticky-footer { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background-color: var(--card-bg); 
@@ -282,10 +253,7 @@
             padding: 14px 20px; 
             display: flex; 
             justify-content: center; 
-            align-items: center;
-            gap: 15px;
             z-index: 900; 
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
         }
         button.tally-btn { 
             background-color: var(--bambu-green); 
@@ -293,4 +261,571 @@
             border: none; 
             padding: 16px 32px; 
             font-size: 16px; 
-            font-weight:
+            font-weight: 700; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            width: 100%; 
+            max-width: 440px; 
+        }
+
+        /* ADMIN MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .admin-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            width: 100%;
+            max-width: 820px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .close-btn {
+            background: var(--box-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+        .tab-btn {
+            flex: 1; padding: 12px; border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--box-bg); color: var(--text-main);
+            font-weight: 700; cursor: pointer;
+        }
+        .tab-btn.active { background: var(--bambu-green); color: white; border-color: var(--bambu-green); }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media (min-width: 600px) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text-muted); }
+        .input-group input, .input-group select {
+            width: 100%; padding: 11px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: var(--box-bg);
+            color: var(--text-main); font-size: 15px;
+        }
+        .calc-results {
+            background: var(--box-bg); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 20px; margin-top: 22px;
+        }
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
+        .res-final {
+            display: flex; justify-content: space-between; margin-top: 14px; padding-top: 14px;
+            border-top: 2px solid var(--border-color); font-size: 20px; font-weight: 800; color: var(--bambu-green);
+        }
+        .action-btn {
+            background: var(--bambu-green); color: white; border: none;
+            padding: 13px 20px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; width: 100%; margin-top: 15px; font-size: 15px;
+        }
+        .action-btn.secondary { background: #4f46e5; }
+        .delete-spool-btn { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; margin-left: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. KOPFBEREICH -->
+        <div class="section-card full-width">
+            <div class="hero-grid">
+                <div>
+                    <div class="printers">
+                        <span class="badge" id="secret-trigger">⚡ Bambu Lab P1S</span>
+                        <span class="badge">🎯 Bambu Lab A1 Mini</span>
+                    </div>
+                    <h1>Mein 3D-Druck Service</h1>
+                    <p>Egal ob Ersatzteil, Geschenk, Deko oder eigener Prototyp: Such dir einfach ein kostenloses 3D-Modell aus oder lade deine eigene Datei hoch – ich kümmere mich um den perfekten Druck!</p>
+                </div>
+                <div>
+                    <img src="Bambu.jpeg" alt="Foto meiner Drucker" class="image-placeholder">
+                </div>
+            </div>
+
+            <div class="steps-bar">
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Modell aussuchen</strong>
+                        <span>Eigene STL-Datei nutzen oder unten auf MakerWorld & Thangs stöbern.</span>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Material & Farbe prüfen</strong>
+                        <span>Schau hier direkt nach, welche Spulen und Farben auf Lager sind.</span>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Anfrage absenden</strong>
+                        <span>Unten auf den grünen Button klicken, Link/Datei einfügen & Preis erhalten!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MATERIAL & FARBEN -->
+        <div class="section-card full-width">
+            <h2>🎨 Verfügbare Materialien & Filament-Spulen</h2>
+            <div class="material-controls">
+                <div>
+                    <label for="material-selector" class="material-label">1. Material-Art wählen:</label>
+                    <select id="material-selector" class="custom-select" onchange="renderCustomerColors()">
+                        <option value="pla">PLA (Standard & Deko)</option>
+                        <option value="petg">PETG (Robust & Outdoor)</option>
+                        <option value="tpu">TPU (Flexibel / Gummi)</option>
+                        <option value="abs">ABS (Technisch & Hitzefest)</option>
+                    </select>
+                </div>
+                <div class="material-helper-box" id="material-helper">
+                    <strong>PLA – Der Allrounder für Deko, Figuren & Alltag</strong>
+                    <span>Sehr feine Druckqualität. Ideal für Indoor-Objekte, Geschenke und Gehäuse.</span>
+                </div>
+            </div>
+
+            <label class="material-label">2. Aktuell verfügbare Farben auf Lager:</label>
+            <div id="customer-color-grid" class="color-grid">
+                <!-- Fallback-Spulen direkt im HTML, falls JS noch lädt -->
+                <div class="color-item"><span class="spool-icon" style="background-color: #111111;"></span>Schwarz</div>
+                <div class="color-item"><span class="spool-icon" style="background-color: #ffffff;"></span>Weiß</div>
+                <div class="color-item"><span class="spool-icon" style="background-color: #C0C0C0;"></span>Silber / Grau</div>
+            </div>
+
+            <div class="special-request-box">
+                💡 <strong>Deine Wunschfarbe fehlt?</strong> Kein Problem! Schreib sie einfach ins Bestellformular – auf Anfrage besorge ich gerne neue Farben oder spezielle Filamente für dein Projekt.
+            </div>
+        </div>
+
+        <!-- 3. MAKERWORLD -->
+        <div class="section-card">
+            <h2>🌐 Modelle auf MakerWorld</h2>
+            <img src="Makerworld.jpg" alt="Screenshot MakerWorld" class="image-placeholder">
+            <p>Die offizielle Plattform für Bambu Lab Drucker mit tausenden geprüften 3D-Modellen.</p>
+            <ol class="step-list">
+                <li>Klicke unten auf den Button und suche dein Wunsch-Modell.</li>
+                <li>Kopiere oben die <strong>Internetadresse (Link)</strong> aus deinem Browser.</li>
+                <li>Klicke unten auf <strong>„Jetzt bestellen“</strong> und füge den Link ein!</li>
+            </ol>
+            <a href="https://makerworld.com/de" target="_blank" class="platform-btn">Zu MakerWorld öffnen ↗</a>
+        </div>
+
+        <!-- 4. THANGS -->
+        <div class="section-card">
+            <h2>🔍 Suchmaschine: Thangs.com</h2>
+            <img src="Thangs.jpg" alt="Screenshot Thangs" class="image-placeholder">
+            <p>Durchsucht fast alle 3D-Druck-Seiten weltweit gleichzeitig. Ideal für spezielle Teile!</p>
+            <ol class="step-list">
+                <li>Gib deinen Suchbegriff ein (Tipp: Auf <strong>Englisch</strong> findet man am meisten).</li>
+                <li>Öffne das gewünschte Modell und kopiere den Browser-Link.</li>
+                <li>Füge den Link unten über den grünen Bestell-Button bei mir ein.</li>
+            </ol>
+            <a href="https://thangs.com" target="_blank" class="platform-btn">Zu Thangs.com öffnen ↗</a>
+        </div>
+    </div>
+
+    <div class="sticky-footer">
+        <button class="tally-btn" 
+                data-tally-open="44VqbB" 
+                data-tally-layout="modal" 
+                data-tally-width="400" 
+                data-tally-emoji-text="👋" 
+                data-tally-emoji-animation="wave">
+            🚀 Jetzt bestellen / Datei hochladen
+        </button>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div class="modal-overlay" id="admin-overlay">
+        <div class="admin-modal">
+            <div class="admin-header">
+                <h2 style="margin:0; border:none; padding:0;">🔒 Internes Admin-Cockpit</h2>
+                <button class="close-btn" onclick="closeAdmin()">✕ Schließen</button>
+            </div>
+
+            <div id="admin-login-view">
+                <p>Bitte bestätige deine Identität (Beim ersten Mal legst du E-Mail & PIN selbst fest):</p>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Deine Admin E-Mail:</label>
+                        <input type="email" id="login-email" placeholder="name@beispiel.de">
+                    </div>
+                    <div class="input-group">
+                        <label>Geheim-PIN (mind. 3 Zeichen):</label>
+                        <input type="password" id="login-pin" placeholder="••••">
+                    </div>
+                </div>
+                <label style="display:flex; align-items:center; gap:8px; margin-top:14px; font-size:14px; cursor:pointer;">
+                    <input type="checkbox" id="remember-me" checked> Auf diesem Gerät eingeloggt bleiben
+                </label>
+                <button class="action-btn" onclick="verifyAdminLogin()">Zugang freischalten</button>
+            </div>
+
+            <div id="admin-dashboard-view" style="display:none;">
+                <div class="admin-tabs">
+                    <button class="tab-btn active" id="tab-calc-btn" onclick="switchAdminTab('calc')">🧮 Slice & Price Rechner</button>
+                    <button class="tab-btn" id="tab-fil-btn" onclick="switchAdminTab('filament')">🎨 Filament-Manager</button>
+                </div>
+
+                <div id="admin-tab-calc">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Drucker-Profil wählen:</label>
+                            <select id="calc-printer" onchange="applyPrinterPreset()">
+                                <option value="p1s">Bambu Lab P1S</option>
+                                <option value="a1mini">Bambu Lab A1 Mini</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Strompreis (€ / kWh):</label>
+                            <input type="number" id="calc-kwh" value="0.32" step="0.01" oninput="runCalculation()">
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-3" style="margin-top:12px;">
+                        <div class="input-group">
+                            <label>Verbrauch Drucker (Watt):</label>
+                            <input type="number" id="calc-watt" value="150" oninput="savePrinterPreset(); runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Maschinen-Abnutzung (€/h):</label>
+                            <input type="number" id="calc-wear" value="0.20" step="0.05" oninput="savePrinterPreset(); runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Spulenpreis (€ / 1000g):</label>
+                            <input type="number" id="calc-spoolprice" value="20.00" step="0.50" oninput="runCalculation()">
+                        </div>
+                    </div>
+
+                    <hr style="border:none; border-top:1px solid var(--border-color); margin:18px 0;">
+
+                    <div class="form-grid form-grid-3">
+                        <div class="input-group">
+                            <label>Gewicht laut Slicer (Gramm):</label>
+                            <input type="number" id="calc-weight" value="85" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Druckzeit (Stunden):</label>
+                            <input type="number" id="calc-hours" value="2" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Druckzeit (Minuten):</label>
+                            <input type="number" id="calc-mins" value="30" max="59" oninput="runCalculation()">
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-3" style="margin-top:12px;">
+                        <div class="input-group">
+                            <label>Fehldruck-Risiko (%):</label>
+                            <input type="number" id="calc-fail" value="10" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Rüstzeit / Arbeit (€ pauschal):</label>
+                            <input type="number" id="calc-labor" value="2.00" step="0.50" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Gewinn-Aufschlag (%):</label>
+                            <input type="number" id="calc-margin" value="30" oninput="runCalculation()">
+                        </div>
+                    </div>
+
+                    <div class="calc-results">
+                        <div class="res-line"><span>Reine Materialkosten:</span> <strong id="out-mat">0.00 €</strong></div>
+                        <div class="res-line"><span>Stromkosten (Zeit × Watt):</span> <strong id="out-elec">0.00 €</strong></div>
+                        <div class="res-line"><span>Drucker-Abnutzung / Wartung:</span> <strong id="out-wear">0.00 €</strong></div>
+                        <div class="res-line"><span>Fehldruck-Puffer & Rüstzeit:</span> <strong id="out-extra">0.00 €</strong></div>
+                        <div class="res-line" style="color:var(--text-main); font-weight:700; border-top:1px dashed var(--border-color); padding-top:8px;">
+                            <span>Selbstkosten (ohne Gewinn):</span> <strong id="out-base">0.00 €</strong>
+                        </div>
+                        <div class="res-final">
+                            <span>Empfohlener Kundenpreis:</span> <span id="out-final">0.00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-tab-filament" style="display:none;">
+                    <p>Füge hier neue Spulen hinzu oder lösche leere Farben:</p>
+                    <div class="form-grid form-grid-3" style="align-items:end; background:var(--box-bg); padding:16px; border-radius:14px; border:1px solid var(--border-color);">
+                        <div class="input-group">
+                            <label>Material:</label>
+                            <select id="new-fil-mat">
+                                <option value="pla">PLA</option>
+                                <option value="petg">PETG</option>
+                                <option value="tpu">TPU</option>
+                                <option value="abs">ABS</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Farbname:</label>
+                            <input type="text" id="new-fil-name" placeholder="z.B. Matt Schwarz">
+                        </div>
+                        <div class="input-group">
+                            <label>Spulenfarbe:</label>
+                            <input type="color" id="new-fil-hex" value="#00A65A" style="height:43px; padding:4px; cursor:pointer;">
+                        </div>
+                    </div>
+                    <button class="action-btn" onclick="addFilamentSpool()">+ Spule zum Sortiment hinzufügen</button>
+
+                    <h3 style="margin-top:24px; font-size:16px;">Aktuelle Spulen:</h3>
+                    <div id="admin-spool-list" class="color-grid" style="margin-bottom:20px;"></div>
+
+                    <button class="action-btn secondary" onclick="exportUpdatedHTML()">💾 Aktualisierte index.html herunterladen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="filament-data-script">
+        var filamentData = {
+            pla: [
+                { name: "Schwarz", hex: "#111111" },
+                { name: "Weiß", hex: "#ffffff" },
+                { name: "Silber / Grau", hex: "#C0C0C0" }
+            ],
+            petg: [
+                { name: "Schwarz", hex: "#111111" },
+                { name: "Signalrot", hex: "#e11d48" },
+                { name: "Königsblau", hex: "#0055ff" }
+            ],
+            tpu: [
+                { name: "Schwarz (Flex)", hex: "#111111" }
+            ],
+            abs: [
+                { name: "Anthrazit", hex: "#374151" }
+            ]
+        };
+
+        var printerPresets = {
+            p1s: { watt: 150, wear: 0.20 },
+            a1mini: { watt: 70, wear: 0.12 }
+        };
+    </script>
+
+    <script>
+        var materialInfos = {
+            pla: {
+                title: "PLA – Der Allrounder für Deko, Figuren & Alltag",
+                desc: "Sehr feine Druckqualität. Ideal für Indoor-Objekte, Geschenke und Gehäuse (nicht über 55 °C lagern)."
+            },
+            petg: {
+                title: "PETG – Extra stabil, wetterfest & hitzebeständig",
+                desc: "Hält Sonne sowie Regen problemlos aus. Perfekt für Halterungen, Garten-Teile und Mechanik."
+            },
+            tpu: {
+                title: "TPU – Biegsam, elastisch & unzerstörbar wie Gummi",
+                desc: "Federt Stöße ab. Ideal für Handyhüllen, Dämpfer, Dichtungen oder Reifen."
+            },
+            abs: {
+                title: "ABS – Hochfestes technisches Material",
+                desc: "Sehr hohe Temperaturbeständigkeit (bis ca. 95 °C) für technische Funktionsbauteile."
+            }
+        };
+
+        function safeStorageGet(key) {
+            try { return localStorage.getItem(key); } catch(e) { return null; }
+        }
+        function safeStorageSet(key, val) {
+            try { localStorage.setItem(key, val); } catch(e) {}
+        }
+
+        var savedFil = safeStorageGet("custom_filament_data");
+        if (savedFil) { try { filamentData = JSON.parse(savedFil); } catch(e) {} }
+
+        var savedPrint = safeStorageGet("custom_printer_presets");
+        if (savedPrint) { try { printerPresets = JSON.parse(savedPrint); } catch(e) {} }
+
+        function renderCustomerColors() {
+            var mat = document.getElementById("material-selector").value;
+            var helperBox = document.getElementById("material-helper");
+            var grid = document.getElementById("customer-color-grid");
+
+            helperBox.innerHTML = "<strong>" + materialInfos[mat].title + "</strong><span>" + materialInfos[mat].desc + "</span>";
+            grid.innerHTML = "";
+            var list = filamentData[mat] || [];
+            if (list.length === 0) {
+                grid.innerHTML = "<p style='margin:0; font-size:14px;'>Aktuell nur auf Anfrage verfügbar.</p>";
+                return;
+            }
+            for (var i = 0; i < list.length; i++) {
+                grid.innerHTML += '<div class="color-item"><span class="spool-icon" style="background-color: ' + list[i].hex + ';"></span>' + list[i].name + '</div>';
+            }
+        }
+
+        var clickCount = 0;
+        var clickTimer = null;
+        document.getElementById("secret-trigger").addEventListener("click", function() {
+            clickCount++;
+            clearTimeout(clickTimer);
+            if (clickCount >= 5) {
+                clickCount = 0;
+                openAdminModal();
+            } else {
+                clickTimer = setTimeout(function() { clickCount = 0; }, 1400);
+            }
+        });
+
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.shiftKey && (e.key === "L" || e.key === "l")) {
+                e.preventDefault();
+                openAdminModal();
+            }
+        });
+
+        function openAdminModal() {
+            document.getElementById("admin-overlay").style.display = "flex";
+            if (safeStorageGet("admin_auth_token") === "verified_owner") {
+                showDashboard();
+            }
+        }
+
+        function closeAdmin() {
+            document.getElementById("admin-overlay").style.display = "none";
+        }
+
+        function verifyAdminLogin() {
+            var email = document.getElementById("login-email").value.trim().toLowerCase();
+            var pin = document.getElementById("login-pin").value.trim();
+            var storedEmail = safeStorageGet("owner_email") || email;
+            var storedPin = safeStorageGet("owner_pin") || pin;
+
+            if (email.indexOf("@") !== -1 && pin.length >= 3 && email === storedEmail && pin === storedPin) {
+                safeStorageSet("owner_email", email);
+                safeStorageSet("owner_pin", pin);
+                if (document.getElementById("remember-me").checked) {
+                    safeStorageSet("admin_auth_token", "verified_owner");
+                }
+                showDashboard();
+            } else {
+                alert("Bitte gültige E-Mail und korrekte PIN (mind. 3 Zeichen) eingeben!");
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById("admin-login-view").style.display = "none";
+            document.getElementById("admin-dashboard-view").style.display = "block";
+            applyPrinterPreset();
+            runCalculation();
+            renderAdminSpoolList();
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById("admin-tab-calc").style.display = (tab === 'calc') ? "block" : "none";
+            document.getElementById("admin-tab-filament").style.display = (tab === 'filament') ? "block" : "none";
+            document.getElementById("tab-calc-btn").className = (tab === 'calc') ? "tab-btn active" : "tab-btn";
+            document.getElementById("tab-fil-btn").className = (tab === 'filament') ? "tab-btn active" : "tab-btn";
+        }
+
+        function applyPrinterPreset() {
+            var p = document.getElementById("calc-printer").value;
+            document.getElementById("calc-watt").value = printerPresets[p].watt;
+            document.getElementById("calc-wear").value = printerPresets[p].wear;
+            runCalculation();
+        }
+
+        function savePrinterPreset() {
+            var p = document.getElementById("calc-printer").value;
+            printerPresets[p].watt = parseFloat(document.getElementById("calc-watt").value) || 0;
+            printerPresets[p].wear = parseFloat(document.getElementById("calc-wear").value) || 0;
+            safeStorageSet("custom_printer_presets", JSON.stringify(printerPresets));
+        }
+
+        function runCalculation() {
+            var watt = parseFloat(document.getElementById("calc-watt").value) || 0;
+            var wearPerHour = parseFloat(document.getElementById("calc-wear").value) || 0;
+            var kwhPrice = parseFloat(document.getElementById("calc-kwh").value) || 0;
+            var spoolPrice = parseFloat(document.getElementById("calc-spoolprice").value) || 0;
+            var weight = parseFloat(document.getElementById("calc-weight").value) || 0;
+            var hours = parseFloat(document.getElementById("calc-hours").value) || 0;
+            var mins = parseFloat(document.getElementById("calc-mins").value) || 0;
+            var failRate = parseFloat(document.getElementById("calc-fail").value) || 0;
+            var labor = parseFloat(document.getElementById("calc-labor").value) || 0;
+            var margin = parseFloat(document.getElementById("calc-margin").value) || 0;
+
+            var totalHours = hours + (mins / 60);
+            var matCost = (weight / 1000) * spoolPrice;
+            var elecCost = (watt / 1000) * totalHours * kwhPrice;
+            var wearCost = wearPerHour * totalHours;
+
+            var prodSub = matCost + elecCost + wearCost;
+            var failCost = prodSub * (failRate / 100);
+            var baseCost = prodSub + failCost + labor;
+            var finalPrice = baseCost * (1 + (margin / 100));
+
+            document.getElementById("out-mat").innerText = matCost.toFixed(2) + " €";
+            document.getElementById("out-elec").innerText = elecCost.toFixed(2) + " €";
+            document.getElementById("out-wear").innerText = wearCost.toFixed(2) + " €";
+            document.getElementById("out-extra").innerText = (failCost + labor).toFixed(2) + " €";
+            document.getElementById("out-base").innerText = baseCost.toFixed(2) + " €";
+            document.getElementById("out-final").innerText = finalPrice.toFixed(2) + " €";
+        }
+
+        function renderAdminSpoolList() {
+            var container = document.getElementById("admin-spool-list");
+            container.innerHTML = "";
+            var mats = ["pla", "petg", "tpu", "abs"];
+            for (var m = 0; m < mats.length; m++) {
+                var mat = mats[m];
+                var list = filamentData[mat] || [];
+                for (var i = 0; i < list.length; i++) {
+                    container.innerHTML += '<div class="color-item"><span class="spool-icon" style="background-color: ' + list[i].hex + ';"></span><strong>' + mat.toUpperCase() + ':</strong> ' + list[i].name + '<button class="delete-spool-btn" onclick="removeSpool(\'' + mat + '\', ' + i + ')">✕</button></div>';
+                }
+            }
+        }
+
+        function addFilamentSpool() {
+            var mat = document.getElementById("new-fil-mat").value;
+            var name = document.getElementById("new-fil-name").value.trim();
+            var hex = document.getElementById("new-fil-hex").value;
+            if (!name) { alert("Bitte gib einen Farbnamen ein!"); return; }
+            filamentData[mat].push({ name: name, hex: hex });
+            safeStorageSet("custom_filament_data", JSON.stringify(filamentData));
+            document.getElementById("new-fil-name").value = "";
+            renderAdminSpoolList();
+            renderCustomerColors();
+        }
+
+        function removeSpool(mat, index) {
+            filamentData[mat].splice(index, 1);
+            safeStorageSet("custom_filament_data", JSON.stringify(filamentData));
+            renderAdminSpoolList();
+            renderCustomerColors();
+        }
+
+        function exportUpdatedHTML() {
+            var dataScript = document.getElementById("filament-data-script");
+            dataScript.textContent = "\n        var filamentData = " + JSON.stringify(filamentData, null, 4) + ";\n        var printerPresets = " + JSON.stringify(printerPresets, null, 4) + ";\n    ";
+            closeAdmin();
+            var fullHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            var blob = new Blob([fullHTML], { type: "text/html;charset=utf-8" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "index.html";
+            a.click();
+        }
+
+        renderCustomerColors();
+    </script>
+</body>
+</html>
